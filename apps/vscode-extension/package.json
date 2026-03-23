@@ -1,0 +1,104 @@
+{
+  "name": "hosted-symphony",
+  "displayName": "Hosted Symphony",
+  "publisher": "rockband-internal",
+  "version": "0.1.0",
+  "private": false,
+  "type": "module",
+  "main": "./dist/extension.cjs",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/example/hosted-symphony"
+  },
+  "engines": {
+    "vscode": "^1.105.0"
+  },
+  "activationEvents": [
+    "onCommand:hostedSymphony.signIn",
+    "onCommand:hostedSymphony.connectRepo",
+    "onCommand:hostedSymphony.createWorkflow",
+    "onCommand:hostedSymphony.validateWorkflow",
+    "onCommand:hostedSymphony.refreshState",
+    "onView:hostedSymphony.repos"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "hostedSymphony.signIn",
+        "title": "Hosted Symphony: Sign In"
+      },
+      {
+        "command": "hostedSymphony.connectRepo",
+        "title": "Hosted Symphony: Connect Repo"
+      },
+      {
+        "command": "hostedSymphony.createWorkflow",
+        "title": "Hosted Symphony: Create/Update WORKFLOW.md"
+      },
+      {
+        "command": "hostedSymphony.validateWorkflow",
+        "title": "Hosted Symphony: Validate Workflow"
+      },
+      {
+        "command": "hostedSymphony.refreshState",
+        "title": "Hosted Symphony: Refresh Symphony State"
+      },
+      {
+        "command": "hostedSymphony.openIssue",
+        "title": "Hosted Symphony: Open Issue"
+      }
+    ],
+    "configuration": {
+      "title": "Hosted Symphony",
+      "properties": {
+        "hostedSymphony.baseUrl": {
+          "type": "string",
+          "default": "http://127.0.0.1:4310",
+          "description": "Base URL for the Hosted Symphony control plane."
+        },
+        "hostedSymphony.environment": {
+          "type": "string",
+          "enum": [
+            "staging",
+            "prod"
+          ],
+          "default": "staging",
+          "description": "Named Hosted Symphony environment for this installation."
+        }
+      }
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "hostedSymphony",
+          "title": "Hosted Symphony",
+          "icon": "media/symphony.svg"
+        }
+      ]
+    },
+    "views": {
+      "hostedSymphony": [
+        {
+          "id": "hostedSymphony.repos",
+          "name": "Repos"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "build": "rm -rf dist && tsc -p tsconfig.json --noEmit && esbuild src/extension.ts --bundle --platform=node --format=cjs --outfile=dist/extension.cjs --external:vscode --sourcemap",
+    "package:vsix": "npm run build && vsce package --no-dependencies --allow-missing-repository --out hosted-symphony.vsix",
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "watch": "tsc -p tsconfig.json --watch"
+  },
+  "dependencies": {
+    "@rockband/shared": "0.1.0",
+    "eventsource": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.105.0",
+    "@vscode/vsce": "^3.6.1",
+    "esbuild": "^0.25.10"
+  }
+}

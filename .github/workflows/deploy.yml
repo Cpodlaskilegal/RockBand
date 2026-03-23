@@ -1,0 +1,67 @@
+name: Deploy Azure
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        required: true
+        type: choice
+        options:
+          - staging
+          - prod
+      image_tag:
+        required: false
+        type: string
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      DEPLOY_ENVIRONMENT: ${{ github.event.inputs.environment || 'staging' }}
+      IMAGE_TAG: ${{ github.event.inputs.image_tag || github.sha }}
+      ACR_LOGIN_SERVER: ${{ vars.AZURE_CONTAINER_REGISTRY_NAME }}.azurecr.io
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npm run build
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      - run: az acr login --name "${{ vars.AZURE_CONTAINER_REGISTRY_NAME }}"
+      - run: docker build -f apps/control-plane/Dockerfile -t "${ACR_LOGIN_SERVER}/hosted-symphony-control-plane:${IMAGE_TAG}" .
+      - run: docker push "${ACR_LOGIN_SERVER}/hosted-symphony-control-plane:${IMAGE_TAG}"
+      - run: docker build -f packages/worker/Dockerfile -t "${ACR_LOGIN_SERVER}/hosted-symphony-worker:${IMAGE_TAG}" .
+      - run: docker push "${ACR_LOGIN_SERVER}/hosted-symphony-worker:${IMAGE_TAG}"
+      - run: az group create --name "${{ vars.AZURE_RESOURCE_GROUP_PREFIX }}-${DEPLOY_ENVIRONMENT}" --location "${{ vars.AZURE_LOCATION }}"
+      - run: |
+          az deployment group create \
+            --resource-group "${{ vars.AZURE_RESOURCE_GROUP_PREFIX }}-${DEPLOY_ENVIRONMENT}" \
+            --template-file infra/azure/main.bicep \
+            --parameters "@infra/azure/parameters/${DEPLOY_ENVIRONMENT}.parameters.json" \
+            --parameters \
+              controlPlaneBaseUrl="${{ vars.HOSTED_SYMPHONY_BASE_URL }}" \
+              containerRegistryName="${{ vars.AZURE_CONTAINER_REGISTRY_NAME }}" \
+              storageAccountName="${{ vars.AZURE_STORAGE_ACCOUNT_NAME_PREFIX }}${DEPLOY_ENVIRONMENT}" \
+              keyVaultName="${{ vars.AZURE_KEY_VAULT_NAME_PREFIX }}-${DEPLOY_ENVIRONMENT}" \
+              postgresServerName="${{ vars.AZURE_POSTGRES_SERVER_NAME_PREFIX }}-${DEPLOY_ENVIRONMENT}" \
+              postgresAdminLogin="${{ vars.AZURE_POSTGRES_ADMIN_LOGIN }}" \
+              controlPlaneImage="${ACR_LOGIN_SERVER}/hosted-symphony-control-plane:${IMAGE_TAG}" \
+              workerImage="${ACR_LOGIN_SERVER}/hosted-symphony-worker:${IMAGE_TAG}" \
+              postgresAdminPassword="${{ secrets.AZURE_POSTGRES_ADMIN_PASSWORD }}" \
+              serviceToken="${{ secrets.HOSTED_SYMPHONY_SERVICE_TOKEN }}" \
+              workerEventSecret="${{ secrets.SYMPHONY_WORKER_EVENT_SECRET }}" \
+              githubAppId="${{ secrets.GITHUB_APP_ID }}" \
+              githubAppPrivateKey="${{ secrets.GITHUB_APP_PRIVATE_KEY }}" \
+              openAiApiKey="${{ secrets.OPENAI_API_KEY }}"

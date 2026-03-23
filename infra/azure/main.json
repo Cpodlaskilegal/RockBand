@@ -1,0 +1,808 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.41.2.15936",
+      "templateHash": "14829577015505150725"
+    }
+  },
+  "parameters": {
+    "environment": {
+      "type": "string",
+      "allowedValues": [
+        "staging",
+        "prod"
+      ]
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "namePrefix": {
+      "type": "string",
+      "defaultValue": "[format('hosted-symphony-{0}', parameters('environment'))]"
+    },
+    "containerRegistryName": {
+      "type": "string",
+      "metadata": {
+        "description": "Existing or new Azure Container Registry name. Must be globally unique."
+      }
+    },
+    "storageAccountName": {
+      "type": "string",
+      "metadata": {
+        "description": "Storage account name for queue + Azure Files. Must be globally unique and lowercase."
+      }
+    },
+    "keyVaultName": {
+      "type": "string",
+      "metadata": {
+        "description": "Key Vault name for Hosted Symphony runtime and per-repo Linear secrets."
+      }
+    },
+    "postgresServerName": {
+      "type": "string",
+      "metadata": {
+        "description": "Flexible Server name for Hosted Symphony state."
+      }
+    },
+    "postgresAdminLogin": {
+      "type": "string",
+      "metadata": {
+        "description": "Postgres administrator login."
+      }
+    },
+    "postgresAdminPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Postgres administrator password."
+      }
+    },
+    "controlPlaneBaseUrl": {
+      "type": "string",
+      "metadata": {
+        "description": "Published control-plane URL used by the extension and worker callbacks."
+      }
+    },
+    "controlPlaneImage": {
+      "type": "string",
+      "metadata": {
+        "description": "Container image for the Hosted Symphony control plane."
+      }
+    },
+    "workerImage": {
+      "type": "string",
+      "metadata": {
+        "description": "Container image for the Hosted Symphony worker."
+      }
+    },
+    "serviceToken": {
+      "type": "securestring"
+    },
+    "workerEventSecret": {
+      "type": "securestring"
+    },
+    "githubAppId": {
+      "type": "securestring"
+    },
+    "githubAppPrivateKey": {
+      "type": "securestring"
+    },
+    "openAiApiKey": {
+      "type": "securestring"
+    },
+    "controlPlanePort": {
+      "type": "int",
+      "defaultValue": 4310
+    },
+    "controlPlaneCpu": {
+      "type": "int",
+      "defaultValue": 1
+    },
+    "controlPlaneMemory": {
+      "type": "string",
+      "defaultValue": "2Gi"
+    },
+    "workerCpu": {
+      "type": "int",
+      "defaultValue": 1
+    },
+    "workerMemory": {
+      "type": "string",
+      "defaultValue": "2Gi"
+    },
+    "workerReplicaTimeoutSeconds": {
+      "type": "int",
+      "defaultValue": 3600
+    },
+    "workspaceShareName": {
+      "type": "string",
+      "defaultValue": "symphony-workspaces"
+    },
+    "postgresDatabaseName": {
+      "type": "string",
+      "defaultValue": "hostedsymphony"
+    },
+    "postgresSkuName": {
+      "type": "string",
+      "defaultValue": "Standard_B1ms"
+    },
+    "postgresStorageSizeGb": {
+      "type": "int",
+      "defaultValue": 32
+    },
+    "postgresVersion": {
+      "type": "string",
+      "defaultValue": "16"
+    }
+  },
+  "variables": {
+    "databaseUrl": "[format('postgresql://{0}:{1}@{2}.postgres.database.azure.com:5432/{3}?sslmode=require', parameters('postgresAdminLogin'), parameters('postgresAdminPassword'), parameters('postgresServerName'), parameters('postgresDatabaseName'))]",
+    "acrLoginServer": "[format('{0}.azurecr.io', parameters('containerRegistryName'))]",
+    "queueNames": {
+      "dispatch": "[format('{0}-dispatch', parameters('namePrefix'))]",
+      "refresh": "[format('{0}-refresh', parameters('namePrefix'))]",
+      "cancel": "[format('{0}-cancel', parameters('namePrefix'))]",
+      "workerEvent": "[format('{0}-worker-event', parameters('namePrefix'))]"
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.OperationalInsights/workspaces",
+      "apiVersion": "2023-09-01",
+      "name": "[format('{0}-logs', parameters('namePrefix'))]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "retentionInDays": 30,
+        "sku": {
+          "name": "PerGB2018"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.ContainerRegistry/registries",
+      "apiVersion": "2023-07-01",
+      "name": "[parameters('containerRegistryName')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "Basic"
+      },
+      "properties": {
+        "adminUserEnabled": false
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2023-05-01",
+      "name": "[parameters('storageAccountName')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "Standard_LRS"
+      },
+      "kind": "StorageV2",
+      "properties": {
+        "allowBlobPublicAccess": false,
+        "minimumTlsVersion": "TLS1_2",
+        "supportsHttpsTrafficOnly": true,
+        "accessTier": "Hot"
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/fileServices",
+      "apiVersion": "2023-05-01",
+      "name": "[format('{0}/{1}', parameters('storageAccountName'), 'default')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/fileServices/shares",
+      "apiVersion": "2023-05-01",
+      "name": "[format('{0}/{1}/{2}', parameters('storageAccountName'), 'default', parameters('workspaceShareName'))]",
+      "properties": {
+        "enabledProtocols": "SMB",
+        "accessTier": "TransactionOptimized"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts/fileServices', parameters('storageAccountName'), 'default')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/queueServices",
+      "apiVersion": "2023-05-01",
+      "name": "[format('{0}/{1}', parameters('storageAccountName'), 'default')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/queueServices/queues",
+      "apiVersion": "2023-05-01",
+      "name": "[format('{0}/{1}/{2}', parameters('storageAccountName'), 'default', format('{0}-dispatch', parameters('namePrefix')))]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts/queueServices', parameters('storageAccountName'), 'default')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/queueServices/queues",
+      "apiVersion": "2023-05-01",
+      "name": "[format('{0}/{1}/{2}', parameters('storageAccountName'), 'default', format('{0}-refresh', parameters('namePrefix')))]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts/queueServices', parameters('storageAccountName'), 'default')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/queueServices/queues",
+      "apiVersion": "2023-05-01",
+      "name": "[format('{0}/{1}/{2}', parameters('storageAccountName'), 'default', format('{0}-cancel', parameters('namePrefix')))]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts/queueServices', parameters('storageAccountName'), 'default')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/queueServices/queues",
+      "apiVersion": "2023-05-01",
+      "name": "[format('{0}/{1}/{2}', parameters('storageAccountName'), 'default', format('{0}-worker-event', parameters('namePrefix')))]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts/queueServices', parameters('storageAccountName'), 'default')]"
+      ]
+    },
+    {
+      "type": "Microsoft.DBforPostgreSQL/flexibleServers",
+      "apiVersion": "2022-12-01",
+      "name": "[parameters('postgresServerName')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "[parameters('postgresSkuName')]",
+        "tier": "Burstable"
+      },
+      "properties": {
+        "administratorLogin": "[parameters('postgresAdminLogin')]",
+        "administratorLoginPassword": "[parameters('postgresAdminPassword')]",
+        "version": "[parameters('postgresVersion')]",
+        "storage": {
+          "storageSizeGB": "[parameters('postgresStorageSizeGb')]"
+        },
+        "backup": {
+          "backupRetentionDays": 7,
+          "geoRedundantBackup": "Disabled"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.DBforPostgreSQL/flexibleServers/databases",
+      "apiVersion": "2022-12-01",
+      "name": "[format('{0}/{1}', parameters('postgresServerName'), parameters('postgresDatabaseName'))]",
+      "dependsOn": [
+        "[resourceId('Microsoft.DBforPostgreSQL/flexibleServers', parameters('postgresServerName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.DBforPostgreSQL/flexibleServers/firewallRules",
+      "apiVersion": "2022-12-01",
+      "name": "[format('{0}/{1}', parameters('postgresServerName'), 'AllowAzureServices')]",
+      "properties": {
+        "startIpAddress": "0.0.0.0",
+        "endIpAddress": "0.0.0.0"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DBforPostgreSQL/flexibleServers', parameters('postgresServerName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults",
+      "apiVersion": "2023-07-01",
+      "name": "[parameters('keyVaultName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "tenantId": "[subscription().tenantId]",
+        "enableRbacAuthorization": false,
+        "enabledForTemplateDeployment": true,
+        "sku": {
+          "family": "A",
+          "name": "standard"
+        },
+        "accessPolicies": []
+      }
+    },
+    {
+      "type": "Microsoft.App/managedEnvironments",
+      "apiVersion": "2024-03-01",
+      "name": "[format('{0}-env', parameters('namePrefix'))]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "appLogsConfiguration": {
+          "destination": "log-analytics",
+          "logAnalyticsConfiguration": {
+            "customerId": "[reference(resourceId('Microsoft.OperationalInsights/workspaces', format('{0}-logs', parameters('namePrefix'))), '2023-09-01').customerId]",
+            "sharedKey": "[listKeys(resourceId('Microsoft.OperationalInsights/workspaces', format('{0}-logs', parameters('namePrefix'))), '2023-09-01').primarySharedKey]"
+          }
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.OperationalInsights/workspaces', format('{0}-logs', parameters('namePrefix')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.App/managedEnvironments/storages",
+      "apiVersion": "2024-03-01",
+      "name": "[format('{0}/{1}', format('{0}-env', parameters('namePrefix')), 'workspace-share')]",
+      "properties": {
+        "azureFile": {
+          "accessMode": "ReadWrite",
+          "accountName": "[parameters('storageAccountName')]",
+          "accountKey": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName')), '2023-05-01').keys[0].value]",
+          "shareName": "[parameters('workspaceShareName')]"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.App/managedEnvironments', format('{0}-env', parameters('namePrefix')))]",
+        "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]",
+        "[resourceId('Microsoft.Storage/storageAccounts/fileServices/shares', parameters('storageAccountName'), 'default', parameters('workspaceShareName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.App/containerApps",
+      "apiVersion": "2024-03-01",
+      "name": "[format('{0}-control-plane', parameters('namePrefix'))]",
+      "location": "[parameters('location')]",
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "properties": {
+        "managedEnvironmentId": "[resourceId('Microsoft.App/managedEnvironments', format('{0}-env', parameters('namePrefix')))]",
+        "configuration": {
+          "activeRevisionsMode": "Single",
+          "ingress": {
+            "external": true,
+            "allowInsecure": false,
+            "targetPort": "[parameters('controlPlanePort')]",
+            "transport": "http"
+          },
+          "registries": [
+            {
+              "server": "[variables('acrLoginServer')]",
+              "identity": "system"
+            }
+          ],
+          "secrets": [
+            {
+              "name": "database-url",
+              "value": "[variables('databaseUrl')]"
+            },
+            {
+              "name": "service-token",
+              "value": "[parameters('serviceToken')]"
+            },
+            {
+              "name": "worker-event-secret",
+              "value": "[parameters('workerEventSecret')]"
+            },
+            {
+              "name": "storage-connection-string",
+              "value": "[format('DefaultEndpointsProtocol=https;AccountName={0};AccountKey={1};EndpointSuffix=core.windows.net', parameters('storageAccountName'), listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName')), '2023-05-01').keys[0].value)]"
+            },
+            {
+              "name": "github-app-id",
+              "value": "[parameters('githubAppId')]"
+            },
+            {
+              "name": "github-app-private-key",
+              "value": "[parameters('githubAppPrivateKey')]"
+            },
+            {
+              "name": "openai-api-key",
+              "value": "[parameters('openAiApiKey')]"
+            }
+          ]
+        },
+        "template": {
+          "containers": [
+            {
+              "name": "control-plane",
+              "image": "[parameters('controlPlaneImage')]",
+              "resources": {
+                "cpu": "[parameters('controlPlaneCpu')]",
+                "memory": "[parameters('controlPlaneMemory')]"
+              },
+              "env": [
+                {
+                  "name": "PORT",
+                  "value": "[string(parameters('controlPlanePort'))]"
+                },
+                {
+                  "name": "HOSTED_SYMPHONY_CLOUD_PROVIDER",
+                  "value": "azure"
+                },
+                {
+                  "name": "HOSTED_SYMPHONY_ENVIRONMENT",
+                  "value": "[parameters('environment')]"
+                },
+                {
+                  "name": "HOSTED_SYMPHONY_BASE_URL",
+                  "value": "[parameters('controlPlaneBaseUrl')]"
+                },
+                {
+                  "name": "DATABASE_URL",
+                  "secretRef": "database-url"
+                },
+                {
+                  "name": "HOSTED_SYMPHONY_SERVICE_TOKEN",
+                  "secretRef": "service-token"
+                },
+                {
+                  "name": "SYMPHONY_WORKER_EVENT_SECRET",
+                  "secretRef": "worker-event-secret"
+                },
+                {
+                  "name": "AZURE_STORAGE_CONNECTION_STRING",
+                  "secretRef": "storage-connection-string"
+                },
+                {
+                  "name": "AZURE_KEY_VAULT_URL",
+                  "value": "[reference(resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName')), '2023-07-01').vaultUri]"
+                },
+                {
+                  "name": "AZURE_SUBSCRIPTION_ID",
+                  "value": "[subscription().subscriptionId]"
+                },
+                {
+                  "name": "AZURE_RESOURCE_GROUP",
+                  "value": "[resourceGroup().name]"
+                },
+                {
+                  "name": "AZURE_CONTAINERAPPS_JOB_NAME",
+                  "value": "[format('{0}-worker', parameters('namePrefix'))]"
+                },
+                {
+                  "name": "AZURE_CONTAINERAPPS_JOB_CONTAINER_NAME",
+                  "value": "worker"
+                },
+                {
+                  "name": "AZURE_CONTAINERAPPS_WORKER_IMAGE",
+                  "value": "[parameters('workerImage')]"
+                },
+                {
+                  "name": "AZURE_CONTAINERAPPS_WORKER_CPU",
+                  "value": "[string(parameters('workerCpu'))]"
+                },
+                {
+                  "name": "AZURE_CONTAINERAPPS_WORKER_MEMORY",
+                  "value": "[parameters('workerMemory')]"
+                },
+                {
+                  "name": "AZURE_CONTAINERAPPS_LOG_NAMESPACE",
+                  "value": "[format('{0}/{1}-worker', resourceGroup().name, parameters('namePrefix'))]"
+                },
+                {
+                  "name": "AZURE_QUEUE_NAME_DISPATCH",
+                  "value": "[variables('queueNames').dispatch]"
+                },
+                {
+                  "name": "AZURE_QUEUE_NAME_REFRESH",
+                  "value": "[variables('queueNames').refresh]"
+                },
+                {
+                  "name": "AZURE_QUEUE_NAME_CANCEL",
+                  "value": "[variables('queueNames').cancel]"
+                },
+                {
+                  "name": "AZURE_QUEUE_NAME_WORKER_EVENT",
+                  "value": "[variables('queueNames').workerEvent]"
+                },
+                {
+                  "name": "GITHUB_APP_ID",
+                  "secretRef": "github-app-id"
+                },
+                {
+                  "name": "GITHUB_APP_PRIVATE_KEY",
+                  "secretRef": "github-app-private-key"
+                },
+                {
+                  "name": "OPENAI_API_KEY",
+                  "secretRef": "openai-api-key"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.ContainerRegistry/registries', parameters('containerRegistryName'))]",
+        "[resourceId('Microsoft.Storage/storageAccounts/queueServices/queues', parameters('storageAccountName'), 'default', format('{0}-cancel', parameters('namePrefix')))]",
+        "[resourceId('Microsoft.Storage/storageAccounts/queueServices/queues', parameters('storageAccountName'), 'default', format('{0}-dispatch', parameters('namePrefix')))]",
+        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]",
+        "[resourceId('Microsoft.App/managedEnvironments', format('{0}-env', parameters('namePrefix')))]",
+        "[resourceId('Microsoft.Storage/storageAccounts/queueServices/queues', parameters('storageAccountName'), 'default', format('{0}-refresh', parameters('namePrefix')))]",
+        "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]",
+        "[resourceId('Microsoft.Storage/storageAccounts/queueServices/queues', parameters('storageAccountName'), 'default', format('{0}-worker-event', parameters('namePrefix')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.App/jobs",
+      "apiVersion": "2024-03-01",
+      "name": "[format('{0}-worker', parameters('namePrefix'))]",
+      "location": "[parameters('location')]",
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "properties": {
+        "environmentId": "[resourceId('Microsoft.App/managedEnvironments', format('{0}-env', parameters('namePrefix')))]",
+        "configuration": {
+          "triggerType": "Manual",
+          "replicaTimeout": "[parameters('workerReplicaTimeoutSeconds')]",
+          "replicaRetryLimit": 0,
+          "manualTriggerConfig": {
+            "parallelism": 1,
+            "replicaCompletionCount": 1
+          },
+          "registries": [
+            {
+              "server": "[variables('acrLoginServer')]",
+              "identity": "system"
+            }
+          ],
+          "secrets": [
+            {
+              "name": "worker-event-secret",
+              "value": "[parameters('workerEventSecret')]"
+            },
+            {
+              "name": "github-app-id",
+              "value": "[parameters('githubAppId')]"
+            },
+            {
+              "name": "github-app-private-key",
+              "value": "[parameters('githubAppPrivateKey')]"
+            },
+            {
+              "name": "openai-api-key",
+              "value": "[parameters('openAiApiKey')]"
+            }
+          ]
+        },
+        "template": {
+          "volumes": [
+            {
+              "name": "workspaces",
+              "storageType": "AzureFile",
+              "storageName": "workspace-share"
+            }
+          ],
+          "containers": [
+            {
+              "name": "worker",
+              "image": "[parameters('workerImage')]",
+              "resources": {
+                "cpu": "[parameters('workerCpu')]",
+                "memory": "[parameters('workerMemory')]"
+              },
+              "env": [
+                {
+                  "name": "HOSTED_SYMPHONY_CLOUD_PROVIDER",
+                  "value": "azure"
+                },
+                {
+                  "name": "HOSTED_SYMPHONY_ENVIRONMENT",
+                  "value": "[parameters('environment')]"
+                },
+                {
+                  "name": "SYMPHONY_CONTROL_PLANE_URL",
+                  "value": "[parameters('controlPlaneBaseUrl')]"
+                },
+                {
+                  "name": "SYMPHONY_WORKER_EVENT_SECRET",
+                  "secretRef": "worker-event-secret"
+                },
+                {
+                  "name": "SYMPHONY_WORKSPACE_ROOT",
+                  "value": "/mnt/symphony"
+                },
+                {
+                  "name": "SYMPHONY_LOG_NAMESPACE",
+                  "value": "[format('{0}/{1}-worker', resourceGroup().name, parameters('namePrefix'))]"
+                },
+                {
+                  "name": "SYMPHONY_AZURE_JOB_NAME",
+                  "value": "[format('{0}-worker', parameters('namePrefix'))]"
+                },
+                {
+                  "name": "SYMPHONY_AZURE_RESOURCE_GROUP",
+                  "value": "[resourceGroup().name]"
+                },
+                {
+                  "name": "GITHUB_APP_ID",
+                  "secretRef": "github-app-id"
+                },
+                {
+                  "name": "GITHUB_APP_PRIVATE_KEY",
+                  "secretRef": "github-app-private-key"
+                },
+                {
+                  "name": "OPENAI_API_KEY",
+                  "secretRef": "openai-api-key"
+                }
+              ],
+              "volumeMounts": [
+                {
+                  "volumeName": "workspaces",
+                  "mountPath": "/mnt/symphony"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.ContainerRegistry/registries', parameters('containerRegistryName'))]",
+        "[resourceId('Microsoft.App/managedEnvironments', format('{0}-env', parameters('namePrefix')))]",
+        "[resourceId('Microsoft.App/managedEnvironments/storages', format('{0}-env', parameters('namePrefix')), 'workspace-share')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2022-04-01",
+      "scope": "[resourceId('Microsoft.ContainerRegistry/registries', parameters('containerRegistryName'))]",
+      "name": "[guid(resourceId('Microsoft.ContainerRegistry/registries', parameters('containerRegistryName')), resourceId('Microsoft.App/containerApps', format('{0}-control-plane', parameters('namePrefix'))), 'AcrPull')]",
+      "properties": {
+        "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '7f951dda-4ed3-4680-a7ca-43fe172d538d')]",
+        "principalId": "[reference(resourceId('Microsoft.App/containerApps', format('{0}-control-plane', parameters('namePrefix'))), '2024-03-01', 'full').identity.principalId]",
+        "principalType": "ServicePrincipal"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.ContainerRegistry/registries', parameters('containerRegistryName'))]",
+        "[resourceId('Microsoft.App/containerApps', format('{0}-control-plane', parameters('namePrefix')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2022-04-01",
+      "scope": "[resourceId('Microsoft.ContainerRegistry/registries', parameters('containerRegistryName'))]",
+      "name": "[guid(resourceId('Microsoft.ContainerRegistry/registries', parameters('containerRegistryName')), resourceId('Microsoft.App/jobs', format('{0}-worker', parameters('namePrefix'))), 'AcrPull')]",
+      "properties": {
+        "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '7f951dda-4ed3-4680-a7ca-43fe172d538d')]",
+        "principalId": "[reference(resourceId('Microsoft.App/jobs', format('{0}-worker', parameters('namePrefix'))), '2024-03-01', 'full').identity.principalId]",
+        "principalType": "ServicePrincipal"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.ContainerRegistry/registries', parameters('containerRegistryName'))]",
+        "[resourceId('Microsoft.App/jobs', format('{0}-worker', parameters('namePrefix')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults/accessPolicies",
+      "apiVersion": "2023-07-01",
+      "name": "[format('{0}/{1}', parameters('keyVaultName'), 'add')]",
+      "properties": {
+        "accessPolicies": [
+          {
+            "tenantId": "[subscription().tenantId]",
+            "objectId": "[reference(resourceId('Microsoft.App/containerApps', format('{0}-control-plane', parameters('namePrefix'))), '2024-03-01', 'full').identity.principalId]",
+            "permissions": {
+              "secrets": [
+                "Get",
+                "List",
+                "Set",
+                "Delete"
+              ]
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.App/containerApps', format('{0}-control-plane', parameters('namePrefix')))]",
+        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults/secrets",
+      "apiVersion": "2023-07-01",
+      "name": "[format('{0}/{1}', parameters('keyVaultName'), 'hosted-symphony-service-token')]",
+      "properties": {
+        "value": "[parameters('serviceToken')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults/secrets",
+      "apiVersion": "2023-07-01",
+      "name": "[format('{0}/{1}', parameters('keyVaultName'), 'hosted-symphony-worker-event-secret')]",
+      "properties": {
+        "value": "[parameters('workerEventSecret')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults/secrets",
+      "apiVersion": "2023-07-01",
+      "name": "[format('{0}/{1}', parameters('keyVaultName'), 'hosted-symphony-github-app-id')]",
+      "properties": {
+        "value": "[parameters('githubAppId')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults/secrets",
+      "apiVersion": "2023-07-01",
+      "name": "[format('{0}/{1}', parameters('keyVaultName'), 'hosted-symphony-github-app-private-key')]",
+      "properties": {
+        "value": "[parameters('githubAppPrivateKey')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults/secrets",
+      "apiVersion": "2023-07-01",
+      "name": "[format('{0}/{1}', parameters('keyVaultName'), 'hosted-symphony-openai-api-key')]",
+      "properties": {
+        "value": "[parameters('openAiApiKey')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults/secrets",
+      "apiVersion": "2023-07-01",
+      "name": "[format('{0}/{1}', parameters('keyVaultName'), 'hosted-symphony-database-url')]",
+      "properties": {
+        "value": "[variables('databaseUrl')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+      ]
+    }
+  ],
+  "outputs": {
+    "controlPlaneContainerAppName": {
+      "type": "string",
+      "value": "[format('{0}-control-plane', parameters('namePrefix'))]"
+    },
+    "controlPlaneIngressFqdn": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.App/containerApps', format('{0}-control-plane', parameters('namePrefix'))), '2024-03-01').configuration.ingress.fqdn]"
+    },
+    "controlPlanePublicUrl": {
+      "type": "string",
+      "value": "[parameters('controlPlaneBaseUrl')]"
+    },
+    "workerJobName": {
+      "type": "string",
+      "value": "[format('{0}-worker', parameters('namePrefix'))]"
+    },
+    "keyVaultUri": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName')), '2023-07-01').vaultUri]"
+    },
+    "containerRegistryLoginServer": {
+      "type": "string",
+      "value": "[variables('acrLoginServer')]"
+    },
+    "storageConnectionString": {
+      "type": "string",
+      "value": "[format('DefaultEndpointsProtocol=https;AccountName={0};AccountKey={1};EndpointSuffix=core.windows.net', parameters('storageAccountName'), listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName')), '2023-05-01').keys[0].value)]"
+    },
+    "postgresHost": {
+      "type": "string",
+      "value": "[format('{0}.postgres.database.azure.com', parameters('postgresServerName'))]"
+    },
+    "postgresDatabase": {
+      "type": "string",
+      "value": "[parameters('postgresDatabaseName')]"
+    },
+    "queueNames": {
+      "type": "object",
+      "value": "[variables('queueNames')]"
+    }
+  }
+}

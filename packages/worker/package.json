@@ -1,0 +1,22 @@
+{
+  "name": "@rockband/worker",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@azure/identity": "^4.11.1",
+    "@aws-sdk/client-cloudwatch-logs": "^3.888.0",
+    "@aws-sdk/client-ecs": "^3.888.0",
+    "@rockband/shared": "0.1.0",
+    "jose": "^6.1.0"
+  }
+}

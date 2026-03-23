@@ -1,0 +1,428 @@
+{
+  "/HostedSymphony-prod/ControlPlaneService": [
+    {
+      "type": "aws:cdk:warning",
+      "data": "minHealthyPercent has not been configured so the default value of 50% is used. The number of running tasks will decrease below the desired count during deployments etc. See https://github.com/aws/aws-cdk/issues/31705 [ack: @aws-cdk/aws-ecs:minHealthyPercent]",
+      "trace": [
+        "Annotations.addMessage (/Users/clawd/Documents/RockBand/node_modules/aws-cdk-lib/core/lib/annotations.js:1:2270)",
+        "Annotations.addWarningV2 (/Users/clawd/Documents/RockBand/node_modules/aws-cdk-lib/core/lib/annotations.js:1:984)",
+        "new BaseService2 (/Users/clawd/Documents/RockBand/node_modules/aws-cdk-lib/aws-ecs/lib/base/base-service.js:1:12546)",
+        "new FargateService2 (/Users/clawd/Documents/RockBand/node_modules/aws-cdk-lib/aws-ecs/lib/fargate/fargate-service.js:1:6556)",
+        "new FargateService2 (/Users/clawd/Documents/RockBand/node_modules/aws-cdk-lib/core/lib/prop-injectable.js:1:726)",
+        "new HostedSymphonyStack (file:///Users/clawd/Documents/RockBand/infra/cdk/lib/hosted-symphony-stack.ts:1:6807)",
+        "file:///Users/clawd/Documents/RockBand/infra/cdk/bin/cdk.ts:2:544",
+        "ModuleJob.run (node:internal/modules/esm/module_job:343:25)",
+        "onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:665:26)",
+        "asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)"
+      ]
+    }
+  ],
+  "/HostedSymphony-prod/ControlPlaneRepositoryUri": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ControlPlaneRepositoryUri"
+    }
+  ],
+  "/HostedSymphony-prod/WorkerRepositoryUri": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "WorkerRepositoryUri"
+    }
+  ],
+  "/HostedSymphony-prod/ControlPlaneUrl": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ControlPlaneUrl"
+    }
+  ],
+  "/HostedSymphony-prod/ServiceTokenSecretArn": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ServiceTokenSecretArn"
+    }
+  ],
+  "/HostedSymphony-prod/BootstrapVersion": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "BootstrapVersion"
+    }
+  ],
+  "/HostedSymphony-prod/CheckBootstrapVersion": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CheckBootstrapVersion"
+    }
+  ],
+  "/HostedSymphony-prod/Vpc/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "Vpc8378EB38"
+    }
+  ],
+  "/HostedSymphony-prod/Vpc/IGW": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VpcIGWD7BA715C"
+    }
+  ],
+  "/HostedSymphony-prod/Vpc/VPCGW": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VpcVPCGWBF912B6E"
+    }
+  ],
+  "/HostedSymphony-prod/Cluster/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ClusterEB0386A7"
+    }
+  ],
+  "/HostedSymphony-prod/WorkspaceFileSystem/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "WorkspaceFileSystem5CB98ACC"
+    }
+  ],
+  "/HostedSymphony-prod/WorkspaceFileSystem/EfsMountTarget1": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "WorkspaceFileSystemEfsMountTarget15DCF1987"
+    }
+  ],
+  "/HostedSymphony-prod/WorkspaceFileSystem/EfsMountTarget2": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "WorkspaceFileSystemEfsMountTarget26CEC0FDE"
+    }
+  ],
+  "/HostedSymphony-prod/DbSecurityGroup/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DbSecurityGroupE9D701AD"
+    }
+  ],
+  "/HostedSymphony-prod/DbSecurityGroup/from HostedSymphonyprodAppSecurityGroup194B8F57:5432": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DbSecurityGroupfromHostedSymphonyprodAppSecurityGroup194B8F575432FC75F793"
+    }
+  ],
+  "/HostedSymphony-prod/AppSecurityGroup/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "AppSecurityGroupC396D536"
+    }
+  ],
+  "/HostedSymphony-prod/AppSecurityGroup/from HostedSymphonyprodAppSecurityGroup194B8F57:4310": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "AppSecurityGroupfromHostedSymphonyprodAppSecurityGroup194B8F5743102EAFE166"
+    }
+  ],
+  "/HostedSymphony-prod/DbCredentials/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DbCredentials798065DE"
+    }
+  ],
+  "/HostedSymphony-prod/Database/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DatabaseB269D8BB"
+    }
+  ],
+  "/HostedSymphony-prod/DispatchQueue/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DispatchQueue898EB017"
+    }
+  ],
+  "/HostedSymphony-prod/RefreshQueue/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "RefreshQueue83549414"
+    }
+  ],
+  "/HostedSymphony-prod/CancelQueue/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CancelQueue89CB162E"
+    }
+  ],
+  "/HostedSymphony-prod/WorkerEventQueue/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "WorkerEventQueue4022FB14"
+    }
+  ],
+  "/HostedSymphony-prod/ServiceToken/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ServiceToken3500ADD0"
+    }
+  ],
+  "/HostedSymphony-prod/WorkerEventSecret/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "WorkerEventSecret10E0E1BD"
+    }
+  ],
+  "/HostedSymphony-prod/GitHubAppPrivateKey/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "GitHubAppPrivateKey042AC85F"
+    }
+  ],
+  "/HostedSymphony-prod/OpenAiApiKey/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "OpenAiApiKeyAB1C389B"
+    }
+  ],
+  "/HostedSymphony-prod/ControlPlaneRepository/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ControlPlaneRepository45F7C185"
+    }
+  ],
+  "/HostedSymphony-prod/WorkerRepository/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "WorkerRepository770852D6"
+    }
+  ],
+  "/HostedSymphony-prod/ControlPlaneLogGroup/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ControlPlaneLogGroupA8D86BA9"
+    }
+  ],
+  "/HostedSymphony-prod/WorkerLogGroup/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "WorkerLogGroup31FDBE4A"
+    }
+  ],
+  "/HostedSymphony-prod/ControlPlaneTask/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ControlPlaneTask5B7510DA"
+    }
+  ],
+  "/HostedSymphony-prod/WorkerTask/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "WorkerTaskCBB1FEE3"
+    }
+  ],
+  "/HostedSymphony-prod/ControlPlaneService/Service": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ControlPlaneServiceAF0E121B"
+    }
+  ],
+  "/HostedSymphony-prod/Alb/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "Alb16C2F182"
+    }
+  ],
+  "/HostedSymphony-prod/CDKMetadata/Default": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CDKMetadata"
+    }
+  ],
+  "/HostedSymphony-prod/Vpc/PublicSubnet1/Subnet": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VpcPublicSubnet1Subnet5C2D37C4"
+    }
+  ],
+  "/HostedSymphony-prod/Vpc/PublicSubnet1/RouteTable": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VpcPublicSubnet1RouteTable6C95E38E"
+    }
+  ],
+  "/HostedSymphony-prod/Vpc/PublicSubnet1/RouteTableAssociation": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VpcPublicSubnet1RouteTableAssociation97140677"
+    }
+  ],
+  "/HostedSymphony-prod/Vpc/PublicSubnet1/DefaultRoute": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VpcPublicSubnet1DefaultRoute3DA9E72A"
+    }
+  ],
+  "/HostedSymphony-prod/Vpc/PublicSubnet1/EIP": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VpcPublicSubnet1EIPD7E02669"
+    }
+  ],
+  "/HostedSymphony-prod/Vpc/PublicSubnet1/NATGateway": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VpcPublicSubnet1NATGateway4D7517AA"
+    }
+  ],
+  "/HostedSymphony-prod/Vpc/PublicSubnet2/Subnet": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VpcPublicSubnet2Subnet691E08A3"
+    }
+  ],
+  "/HostedSymphony-prod/Vpc/PublicSubnet2/RouteTable": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VpcPublicSubnet2RouteTable94F7E489"
+    }
+  ],
+  "/HostedSymphony-prod/Vpc/PublicSubnet2/RouteTableAssociation": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VpcPublicSubnet2RouteTableAssociationDD5762D8"
+    }
+  ],
+  "/HostedSymphony-prod/Vpc/PublicSubnet2/DefaultRoute": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VpcPublicSubnet2DefaultRoute97F91067"
+    }
+  ],
+  "/HostedSymphony-prod/Vpc/PrivateSubnet1/Subnet": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VpcPrivateSubnet1Subnet536B997A"
+    }
+  ],
+  "/HostedSymphony-prod/Vpc/PrivateSubnet1/RouteTable": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VpcPrivateSubnet1RouteTableB2C5B500"
+    }
+  ],
+  "/HostedSymphony-prod/Vpc/PrivateSubnet1/RouteTableAssociation": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VpcPrivateSubnet1RouteTableAssociation70C59FA6"
+    }
+  ],
+  "/HostedSymphony-prod/Vpc/PrivateSubnet1/DefaultRoute": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VpcPrivateSubnet1DefaultRouteBE02A9ED"
+    }
+  ],
+  "/HostedSymphony-prod/Vpc/PrivateSubnet2/Subnet": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VpcPrivateSubnet2Subnet3788AAA1"
+    }
+  ],
+  "/HostedSymphony-prod/Vpc/PrivateSubnet2/RouteTable": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VpcPrivateSubnet2RouteTableA678073B"
+    }
+  ],
+  "/HostedSymphony-prod/Vpc/PrivateSubnet2/RouteTableAssociation": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VpcPrivateSubnet2RouteTableAssociationA89CAD56"
+    }
+  ],
+  "/HostedSymphony-prod/Vpc/PrivateSubnet2/DefaultRoute": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VpcPrivateSubnet2DefaultRoute060D2087"
+    }
+  ],
+  "/HostedSymphony-prod/WorkspaceFileSystem/EfsSecurityGroup/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "WorkspaceFileSystemEfsSecurityGroup8D2983A9"
+    }
+  ],
+  "/HostedSymphony-prod/WorkspaceFileSystem/EfsSecurityGroup/from HostedSymphonyprodAppSecurityGroup194B8F57:2049": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "WorkspaceFileSystemEfsSecurityGroupfromHostedSymphonyprodAppSecurityGroup194B8F572049DB3B9661"
+    }
+  ],
+  "/HostedSymphony-prod/DbCredentials/Attachment/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DbCredentialsAttachmentD2151D4F"
+    }
+  ],
+  "/HostedSymphony-prod/Database/SubnetGroup/Default": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DatabaseSubnetGroup7D60F180"
+    }
+  ],
+  "/HostedSymphony-prod/ControlPlaneTask/TaskRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ControlPlaneTaskTaskRole109D67A2"
+    }
+  ],
+  "/HostedSymphony-prod/ControlPlaneTask/ExecutionRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ControlPlaneTaskExecutionRoleF83BE272"
+    }
+  ],
+  "/HostedSymphony-prod/WorkerTask/TaskRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "WorkerTaskTaskRoleC4141168"
+    }
+  ],
+  "/HostedSymphony-prod/WorkerTask/ExecutionRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "WorkerTaskExecutionRole9C03D68C"
+    }
+  ],
+  "/HostedSymphony-prod/Alb/HttpListener/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "AlbHttpListener00C8B33E"
+    }
+  ],
+  "/HostedSymphony-prod/ControlPlaneTask/TaskRole/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ControlPlaneTaskTaskRoleDefaultPolicy08A75FC4"
+    }
+  ],
+  "/HostedSymphony-prod/ControlPlaneTask/ExecutionRole/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ControlPlaneTaskExecutionRoleDefaultPolicy05012E02"
+    }
+  ],
+  "/HostedSymphony-prod/WorkerTask/TaskRole/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "WorkerTaskTaskRoleDefaultPolicy242C79D9"
+    }
+  ],
+  "/HostedSymphony-prod/WorkerTask/ExecutionRole/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "WorkerTaskExecutionRoleDefaultPolicyAF6178D4"
+    }
+  ],
+  "/HostedSymphony-prod/Alb/HttpListener/ControlPlaneTargetsGroup/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "AlbHttpListenerControlPlaneTargetsGroup1E7BA025"
+    }
+  ]
+}

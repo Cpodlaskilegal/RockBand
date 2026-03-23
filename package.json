@@ -1,0 +1,32 @@
+{
+  "name": "rockband",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "packages/*",
+    "apps/*",
+    "infra/cdk"
+  ],
+  "scripts": {
+    "azure:bootstrap": "bash infra/azure/scripts/bootstrap-local.sh",
+    "azure:github-app": "node infra/azure/scripts/github-app-setup.mjs",
+    "azure:validate": "az bicep build --file infra/azure/main.bicep",
+    "build": "npm run build --workspaces --if-present",
+    "cdk:synth": "npm run synth --workspace @rockband/infra-cdk",
+    "cdk:diff": "npm run diff --workspace @rockband/infra-cdk",
+    "dev:control-plane": "npm run dev --workspace @rockband/control-plane",
+    "dev:extension": "npm run watch --workspace hosted-symphony",
+    "package:extension": "npm run package:vsix --workspace hosted-symphony",
+    "lint": "npm run lint --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present"
+  },
+  "devDependencies": {
+    "@types/node": "^24.5.2",
+    "@types/nunjucks": "^3.2.6",
+    "@types/pg": "^8.15.5",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
+  }
+}

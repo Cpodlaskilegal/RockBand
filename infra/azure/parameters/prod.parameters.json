@@ -1,0 +1,36 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "environment": {
+      "value": "prod"
+    },
+    "location": {
+      "value": "eastus"
+    },
+    "containerRegistryName": {
+      "value": "hostedsymphonyprodacr"
+    },
+    "storageAccountName": {
+      "value": "hostedsymphonyprodstorage"
+    },
+    "keyVaultName": {
+      "value": "hosted-symphony-prod-kv"
+    },
+    "postgresServerName": {
+      "value": "hosted-symphony-prod-pg"
+    },
+    "postgresAdminLogin": {
+      "value": "hostedsymphony"
+    },
+    "controlPlaneBaseUrl": {
+      "value": "https://hosted-symphony.example.internal"
+    },
+    "controlPlaneImage": {
+      "value": "hostedsymphonyprodacr.azurecr.io/hosted-symphony-control-plane:latest"
+    },
+    "workerImage": {
+      "value": "hostedsymphonyprodacr.azurecr.io/hosted-symphony-worker:latest"
+    }
+  }
+}

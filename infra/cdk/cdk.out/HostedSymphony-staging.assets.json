@@ -1,0 +1,21 @@
+{
+  "version": "52.0.0",
+  "files": {
+    "891776a1fa0aadb43ba4103abef153e5669065d39583019471f27ce03e3f32ce": {
+      "displayName": "HostedSymphony-staging Template",
+      "source": {
+        "path": "HostedSymphony-staging.template.json",
+        "packaging": "file"
+      },
+      "destinations": {
+        "current_account-us-east-1-216c5e19": {
+          "bucketName": "cdk-hnb659fds-assets-${AWS::AccountId}-us-east-1",
+          "objectKey": "891776a1fa0aadb43ba4103abef153e5669065d39583019471f27ce03e3f32ce.json",
+          "region": "us-east-1",
+          "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-file-publishing-role-${AWS::AccountId}-us-east-1"
+        }
+      }
+    }
+  },
+  "dockerImages": {}
+}

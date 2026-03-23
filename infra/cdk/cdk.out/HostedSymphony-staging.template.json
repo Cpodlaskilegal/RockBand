@@ -1,0 +1,1847 @@
+{
+ "Resources": {
+  "Vpc8378EB38": {
+   "Type": "AWS::EC2::VPC",
+   "Properties": {
+    "CidrBlock": "10.0.0.0/16",
+    "EnableDnsHostnames": true,
+    "EnableDnsSupport": true,
+    "InstanceTenancy": "default",
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "HostedSymphony-staging/Vpc"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "HostedSymphony-staging/Vpc/Resource"
+   }
+  },
+  "VpcPublicSubnet1Subnet5C2D37C4": {
+   "Type": "AWS::EC2::Subnet",
+   "Properties": {
+    "AvailabilityZone": {
+     "Fn::Select": [
+      0,
+      {
+       "Fn::GetAZs": ""
+      }
+     ]
+    },
+    "CidrBlock": "10.0.0.0/18",
+    "MapPublicIpOnLaunch": true,
+    "Tags": [
+     {
+      "Key": "aws-cdk:subnet-name",
+      "Value": "Public"
+     },
+     {
+      "Key": "aws-cdk:subnet-type",
+      "Value": "Public"
+     },
+     {
+      "Key": "Name",
+      "Value": "HostedSymphony-staging/Vpc/PublicSubnet1"
+     }
+    ],
+    "VpcId": {
+     "Ref": "Vpc8378EB38"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "HostedSymphony-staging/Vpc/PublicSubnet1/Subnet"
+   }
+  },
+  "VpcPublicSubnet1RouteTable6C95E38E": {
+   "Type": "AWS::EC2::RouteTable",
+   "Properties": {
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "HostedSymphony-staging/Vpc/PublicSubnet1"
+     }
+    ],
+    "VpcId": {
+     "Ref": "Vpc8378EB38"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "HostedSymphony-staging/Vpc/PublicSubnet1/RouteTable"
+   }
+  },
+  "VpcPublicSubnet1RouteTableAssociation97140677": {
+   "Type": "AWS::EC2::SubnetRouteTableAssociation",
+   "Properties": {
+    "RouteTableId": {
+     "Ref": "VpcPublicSubnet1RouteTable6C95E38E"
+    },
+    "SubnetId": {
+     "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "HostedSymphony-staging/Vpc/PublicSubnet1/RouteTableAssociation"
+   }
+  },
+  "VpcPublicSubnet1DefaultRoute3DA9E72A": {
+   "Type": "AWS::EC2::Route",
+   "Properties": {
+    "DestinationCidrBlock": "0.0.0.0/0",
+    "GatewayId": {
+     "Ref": "VpcIGWD7BA715C"
+    },
+    "RouteTableId": {
+     "Ref": "VpcPublicSubnet1RouteTable6C95E38E"
+    }
+   },
+   "DependsOn": [
+    "VpcVPCGWBF912B6E"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "HostedSymphony-staging/Vpc/PublicSubnet1/DefaultRoute"
+   }
+  },
+  "VpcPublicSubnet1EIPD7E02669": {
+   "Type": "AWS::EC2::EIP",
+   "Properties": {
+    "Domain": "vpc",
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "HostedSymphony-staging/Vpc/PublicSubnet1"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "HostedSymphony-staging/Vpc/PublicSubnet1/EIP"
+   }
+  },
+  "VpcPublicSubnet1NATGateway4D7517AA": {
+   "Type": "AWS::EC2::NatGateway",
+   "Properties": {
+    "AllocationId": {
+     "Fn::GetAtt": [
+      "VpcPublicSubnet1EIPD7E02669",
+      "AllocationId"
+     ]
+    },
+    "SubnetId": {
+     "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
+    },
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "HostedSymphony-staging/Vpc/PublicSubnet1"
+     }
+    ]
+   },
+   "DependsOn": [
+    "VpcPublicSubnet1DefaultRoute3DA9E72A",
+    "VpcPublicSubnet1RouteTableAssociation97140677"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "HostedSymphony-staging/Vpc/PublicSubnet1/NATGateway"
+   }
+  },
+  "VpcPublicSubnet2Subnet691E08A3": {
+   "Type": "AWS::EC2::Subnet",
+   "Properties": {
+    "AvailabilityZone": {
+     "Fn::Select": [
+      1,
+      {
+       "Fn::GetAZs": ""
+      }
+     ]
+    },
+    "CidrBlock": "10.0.64.0/18",
+    "MapPublicIpOnLaunch": true,
+    "Tags": [
+     {
+      "Key": "aws-cdk:subnet-name",
+      "Value": "Public"
+     },
+     {
+      "Key": "aws-cdk:subnet-type",
+      "Value": "Public"
+     },
+     {
+      "Key": "Name",
+      "Value": "HostedSymphony-staging/Vpc/PublicSubnet2"
+     }
+    ],
+    "VpcId": {
+     "Ref": "Vpc8378EB38"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "HostedSymphony-staging/Vpc/PublicSubnet2/Subnet"
+   }
+  },
+  "VpcPublicSubnet2RouteTable94F7E489": {
+   "Type": "AWS::EC2::RouteTable",
+   "Properties": {
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "HostedSymphony-staging/Vpc/PublicSubnet2"
+     }
+    ],
+    "VpcId": {
+     "Ref": "Vpc8378EB38"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "HostedSymphony-staging/Vpc/PublicSubnet2/RouteTable"
+   }
+  },
+  "VpcPublicSubnet2RouteTableAssociationDD5762D8": {
+   "Type": "AWS::EC2::SubnetRouteTableAssociation",
+   "Properties": {
+    "RouteTableId": {
+     "Ref": "VpcPublicSubnet2RouteTable94F7E489"
+    },
+    "SubnetId": {
+     "Ref": "VpcPublicSubnet2Subnet691E08A3"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "HostedSymphony-staging/Vpc/PublicSubnet2/RouteTableAssociation"
+   }
+  },
+  "VpcPublicSubnet2DefaultRoute97F91067": {
+   "Type": "AWS::EC2::Route",
+   "Properties": {
+    "DestinationCidrBlock": "0.0.0.0/0",
+    "GatewayId": {
+     "Ref": "VpcIGWD7BA715C"
+    },
+    "RouteTableId": {
+     "Ref": "VpcPublicSubnet2RouteTable94F7E489"
+    }
+   },
+   "DependsOn": [
+    "VpcVPCGWBF912B6E"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "HostedSymphony-staging/Vpc/PublicSubnet2/DefaultRoute"
+   }
+  },
+  "VpcPrivateSubnet1Subnet536B997A": {
+   "Type": "AWS::EC2::Subnet",
+   "Properties": {
+    "AvailabilityZone": {
+     "Fn::Select": [
+      0,
+      {
+       "Fn::GetAZs": ""
+      }
+     ]
+    },
+    "CidrBlock": "10.0.128.0/18",
+    "MapPublicIpOnLaunch": false,
+    "Tags": [
+     {
+      "Key": "aws-cdk:subnet-name",
+      "Value": "Private"
+     },
+     {
+      "Key": "aws-cdk:subnet-type",
+      "Value": "Private"
+     },
+     {
+      "Key": "Name",
+      "Value": "HostedSymphony-staging/Vpc/PrivateSubnet1"
+     }
+    ],
+    "VpcId": {
+     "Ref": "Vpc8378EB38"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "HostedSymphony-staging/Vpc/PrivateSubnet1/Subnet"
+   }
+  },
+  "VpcPrivateSubnet1RouteTableB2C5B500": {
+   "Type": "AWS::EC2::RouteTable",
+   "Properties": {
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "HostedSymphony-staging/Vpc/PrivateSubnet1"
+     }
+    ],
+    "VpcId": {
+     "Ref": "Vpc8378EB38"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "HostedSymphony-staging/Vpc/PrivateSubnet1/RouteTable"
+   }
+  },
+  "VpcPrivateSubnet1RouteTableAssociation70C59FA6": {
+   "Type": "AWS::EC2::SubnetRouteTableAssociation",
+   "Properties": {
+    "RouteTableId": {
+     "Ref": "VpcPrivateSubnet1RouteTableB2C5B500"
+    },
+    "SubnetId": {
+     "Ref": "VpcPrivateSubnet1Subnet536B997A"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "HostedSymphony-staging/Vpc/PrivateSubnet1/RouteTableAssociation"
+   }
+  },
+  "VpcPrivateSubnet1DefaultRouteBE02A9ED": {
+   "Type": "AWS::EC2::Route",
+   "Properties": {
+    "DestinationCidrBlock": "0.0.0.0/0",
+    "NatGatewayId": {
+     "Ref": "VpcPublicSubnet1NATGateway4D7517AA"
+    },
+    "RouteTableId": {
+     "Ref": "VpcPrivateSubnet1RouteTableB2C5B500"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "HostedSymphony-staging/Vpc/PrivateSubnet1/DefaultRoute"
+   }
+  },
+  "VpcPrivateSubnet2Subnet3788AAA1": {
+   "Type": "AWS::EC2::Subnet",
+   "Properties": {
+    "AvailabilityZone": {
+     "Fn::Select": [
+      1,
+      {
+       "Fn::GetAZs": ""
+      }
+     ]
+    },
+    "CidrBlock": "10.0.192.0/18",
+    "MapPublicIpOnLaunch": false,
+    "Tags": [
+     {
+      "Key": "aws-cdk:subnet-name",
+      "Value": "Private"
+     },
+     {
+      "Key": "aws-cdk:subnet-type",
+      "Value": "Private"
+     },
+     {
+      "Key": "Name",
+      "Value": "HostedSymphony-staging/Vpc/PrivateSubnet2"
+     }
+    ],
+    "VpcId": {
+     "Ref": "Vpc8378EB38"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "HostedSymphony-staging/Vpc/PrivateSubnet2/Subnet"
+   }
+  },
+  "VpcPrivateSubnet2RouteTableA678073B": {
+   "Type": "AWS::EC2::RouteTable",
+   "Properties": {
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "HostedSymphony-staging/Vpc/PrivateSubnet2"
+     }
+    ],
+    "VpcId": {
+     "Ref": "Vpc8378EB38"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "HostedSymphony-staging/Vpc/PrivateSubnet2/RouteTable"
+   }
+  },
+  "VpcPrivateSubnet2RouteTableAssociationA89CAD56": {
+   "Type": "AWS::EC2::SubnetRouteTableAssociation",
+   "Properties": {
+    "RouteTableId": {
+     "Ref": "VpcPrivateSubnet2RouteTableA678073B"
+    },
+    "SubnetId": {
+     "Ref": "VpcPrivateSubnet2Subnet3788AAA1"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "HostedSymphony-staging/Vpc/PrivateSubnet2/RouteTableAssociation"
+   }
+  },
+  "VpcPrivateSubnet2DefaultRoute060D2087": {
+   "Type": "AWS::EC2::Route",
+   "Properties": {
+    "DestinationCidrBlock": "0.0.0.0/0",
+    "NatGatewayId": {
+     "Ref": "VpcPublicSubnet1NATGateway4D7517AA"
+    },
+    "RouteTableId": {
+     "Ref": "VpcPrivateSubnet2RouteTableA678073B"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "HostedSymphony-staging/Vpc/PrivateSubnet2/DefaultRoute"
+   }
+  },
+  "VpcIGWD7BA715C": {
+   "Type": "AWS::EC2::InternetGateway",
+   "Properties": {
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "HostedSymphony-staging/Vpc"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "HostedSymphony-staging/Vpc/IGW"
+   }
+  },
+  "VpcVPCGWBF912B6E": {
+   "Type": "AWS::EC2::VPCGatewayAttachment",
+   "Properties": {
+    "InternetGatewayId": {
+     "Ref": "VpcIGWD7BA715C"
+    },
+    "VpcId": {
+     "Ref": "Vpc8378EB38"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "HostedSymphony-staging/Vpc/VPCGW"
+   }
+  },
+  "ClusterEB0386A7": {
+   "Type": "AWS::ECS::Cluster",
+   "Metadata": {
+    "aws:cdk:path": "HostedSymphony-staging/Cluster/Resource"
+   }
+  },
+  "WorkspaceFileSystem5CB98ACC": {
+   "Type": "AWS::EFS::FileSystem",
+   "Properties": {
+    "Encrypted": true,
+    "FileSystemTags": [
+     {
+      "Key": "Name",
+      "Value": "HostedSymphony-staging/WorkspaceFileSystem"
+     }
+    ],
+    "PerformanceMode": "generalPurpose",
+    "ThroughputMode": "bursting"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "HostedSymphony-staging/WorkspaceFileSystem/Resource"
+   }
+  },
+  "WorkspaceFileSystemEfsSecurityGroup8D2983A9": {
+   "Type": "AWS::EC2::SecurityGroup",
+   "Properties": {
+    "GroupDescription": "HostedSymphony-staging/WorkspaceFileSystem/EfsSecurityGroup",
+    "SecurityGroupEgress": [
+     {
+      "CidrIp": "0.0.0.0/0",
+      "Description": "Allow all outbound traffic by default",
+      "IpProtocol": "-1"
+     }
+    ],
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "HostedSymphony-staging/WorkspaceFileSystem"
+     }
+    ],
+    "VpcId": {
+     "Ref": "Vpc8378EB38"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "HostedSymphony-staging/WorkspaceFileSystem/EfsSecurityGroup/Resource"
+   }
+  },
+  "WorkspaceFileSystemEfsSecurityGroupfromHostedSymphonystagingAppSecurityGroupB12DA90D2049BEBE5CEC": {
+   "Type": "AWS::EC2::SecurityGroupIngress",
+   "Properties": {
+    "Description": "from HostedSymphonystagingAppSecurityGroupB12DA90D:2049",
+    "FromPort": 2049,
+    "GroupId": {
+     "Fn::GetAtt": [
+      "WorkspaceFileSystemEfsSecurityGroup8D2983A9",
+      "GroupId"
+     ]
+    },
+    "IpProtocol": "tcp",
+    "SourceSecurityGroupId": {
+     "Fn::GetAtt": [
+      "AppSecurityGroupC396D536",
+      "GroupId"
+     ]
+    },
+    "ToPort": 2049
+   },
+   "Metadata": {
+    "aws:cdk:path": "HostedSymphony-staging/WorkspaceFileSystem/EfsSecurityGroup/from HostedSymphonystagingAppSecurityGroupB12DA90D:2049"
+   }
+  },
+  "WorkspaceFileSystemEfsMountTarget15DCF1987": {
+   "Type": "AWS::EFS::MountTarget",
+   "Properties": {
+    "FileSystemId": {
+     "Ref": "WorkspaceFileSystem5CB98ACC"
+    },
+    "SecurityGroups": [
+     {
+      "Fn::GetAtt": [
+       "WorkspaceFileSystemEfsSecurityGroup8D2983A9",
+       "GroupId"
+      ]
+     }
+    ],
+    "SubnetId": {
+     "Ref": "VpcPrivateSubnet1Subnet536B997A"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "HostedSymphony-staging/WorkspaceFileSystem/EfsMountTarget1"
+   }
+  },
+  "WorkspaceFileSystemEfsMountTarget26CEC0FDE": {
+   "Type": "AWS::EFS::MountTarget",
+   "Properties": {
+    "FileSystemId": {
+     "Ref": "WorkspaceFileSystem5CB98ACC"
+    },
+    "SecurityGroups": [
+     {
+      "Fn::GetAtt": [
+       "WorkspaceFileSystemEfsSecurityGroup8D2983A9",
+       "GroupId"
+      ]
+     }
+    ],
+    "SubnetId": {
+     "Ref": "VpcPrivateSubnet2Subnet3788AAA1"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "HostedSymphony-staging/WorkspaceFileSystem/EfsMountTarget2"
+   }
+  },
+  "DbSecurityGroupE9D701AD": {
+   "Type": "AWS::EC2::SecurityGroup",
+   "Properties": {
+    "GroupDescription": "HostedSymphony-staging/DbSecurityGroup",
+    "SecurityGroupEgress": [
+     {
+      "CidrIp": "0.0.0.0/0",
+      "Description": "Allow all outbound traffic by default",
+      "IpProtocol": "-1"
+     }
+    ],
+    "VpcId": {
+     "Ref": "Vpc8378EB38"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "HostedSymphony-staging/DbSecurityGroup/Resource"
+   }
+  },
+  "DbSecurityGroupfromHostedSymphonystagingAppSecurityGroupB12DA90D543263AFE675": {
+   "Type": "AWS::EC2::SecurityGroupIngress",
+   "Properties": {
+    "Description": "from HostedSymphonystagingAppSecurityGroupB12DA90D:5432",
+    "FromPort": 5432,
+    "GroupId": {
+     "Fn::GetAtt": [
+      "DbSecurityGroupE9D701AD",
+      "GroupId"
+     ]
+    },
+    "IpProtocol": "tcp",
+    "SourceSecurityGroupId": {
+     "Fn::GetAtt": [
+      "AppSecurityGroupC396D536",
+      "GroupId"
+     ]
+    },
+    "ToPort": 5432
+   },
+   "Metadata": {
+    "aws:cdk:path": "HostedSymphony-staging/DbSecurityGroup/from HostedSymphonystagingAppSecurityGroupB12DA90D:5432"
+   }
+  },
+  "AppSecurityGroupC396D536": {
+   "Type": "AWS::EC2::SecurityGroup",
+   "Properties": {
+    "GroupDescription": "HostedSymphony-staging/AppSecurityGroup",
+    "SecurityGroupEgress": [
+     {
+      "CidrIp": "0.0.0.0/0",
+      "Description": "Allow all outbound traffic by default",
+      "IpProtocol": "-1"
+     }
+    ],
+    "SecurityGroupIngress": [
+     {
+      "CidrIp": "0.0.0.0/0",
+      "Description": "Allow from anyone on port 80",
+      "FromPort": 80,
+      "IpProtocol": "tcp",
+      "ToPort": 80
+     }
+    ],
+    "VpcId": {
+     "Ref": "Vpc8378EB38"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "HostedSymphony-staging/AppSecurityGroup/Resource"
+   }
+  },
+  "AppSecurityGroupfromHostedSymphonystagingAppSecurityGroupB12DA90D4310EE642908": {
+   "Type": "AWS::EC2::SecurityGroupIngress",
+   "Properties": {
+    "Description": "Load balancer to target",
+    "FromPort": 4310,
+    "GroupId": {
+     "Fn::GetAtt": [
+      "AppSecurityGroupC396D536",
+      "GroupId"
+     ]
+    },
+    "IpProtocol": "tcp",
+    "SourceSecurityGroupId": {
+     "Fn::GetAtt": [
+      "AppSecurityGroupC396D536",
+      "GroupId"
+     ]
+    },
+    "ToPort": 4310
+   },
+   "Metadata": {
+    "aws:cdk:path": "HostedSymphony-staging/AppSecurityGroup/from HostedSymphonystagingAppSecurityGroupB12DA90D:4310"
+   }
+  },
+  "DbCredentials798065DE": {
+   "Type": "AWS::SecretsManager::Secret",
+   "Properties": {
+    "GenerateSecretString": {
+     "GenerateStringKey": "password",
+     "SecretStringTemplate": "{\"username\":\"hostedsymphony\"}"
+    },
+    "Name": "hosted-symphony-staging/db-credentials"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "HostedSymphony-staging/DbCredentials/Resource"
+   }
+  },
+  "DbCredentialsAttachmentD2151D4F": {
+   "Type": "AWS::SecretsManager::SecretTargetAttachment",
+   "Properties": {
+    "SecretId": {
+     "Ref": "DbCredentials798065DE"
+    },
+    "TargetId": {
+     "Ref": "DatabaseB269D8BB"
+    },
+    "TargetType": "AWS::RDS::DBInstance"
+   },
+   "Metadata": {
+    "aws:cdk:path": "HostedSymphony-staging/DbCredentials/Attachment/Resource"
+   }
+  },
+  "DatabaseSubnetGroup7D60F180": {
+   "Type": "AWS::RDS::DBSubnetGroup",
+   "Properties": {
+    "DBSubnetGroupDescription": "Subnet group for Database database",
+    "SubnetIds": [
+     {
+      "Ref": "VpcPrivateSubnet1Subnet536B997A"
+     },
+     {
+      "Ref": "VpcPrivateSubnet2Subnet3788AAA1"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "HostedSymphony-staging/Database/SubnetGroup/Default"
+   }
+  },
+  "DatabaseB269D8BB": {
+   "Type": "AWS::RDS::DBInstance",
+   "Properties": {
+    "AllocatedStorage": "20",
+    "CopyTagsToSnapshot": true,
+    "DBInstanceClass": "db.t4g.micro",
+    "DBName": "hostedsymphony",
+    "DBSubnetGroupName": {
+     "Ref": "DatabaseSubnetGroup7D60F180"
+    },
+    "DeletionProtection": false,
+    "Engine": "postgres",
+    "EngineVersion": "16.4",
+    "MasterUserPassword": {
+     "Fn::Join": [
+      "",
+      [
+       "{{resolve:secretsmanager:",
+       {
+        "Ref": "DbCredentials798065DE"
+       },
+       ":SecretString:password::}}"
+      ]
+     ]
+    },
+    "MasterUsername": {
+     "Fn::Join": [
+      "",
+      [
+       "{{resolve:secretsmanager:",
+       {
+        "Ref": "DbCredentials798065DE"
+       },
+       ":SecretString:username::}}"
+      ]
+     ]
+    },
+    "MultiAZ": false,
+    "PubliclyAccessible": false,
+    "StorageType": "gp2",
+    "VPCSecurityGroups": [
+     {
+      "Fn::GetAtt": [
+       "DbSecurityGroupE9D701AD",
+       "GroupId"
+      ]
+     }
+    ]
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "HostedSymphony-staging/Database/Resource"
+   }
+  },
+  "DispatchQueue898EB017": {
+   "Type": "AWS::SQS::Queue",
+   "Properties": {
+    "QueueName": "hosted-symphony-staging-dispatch",
+    "VisibilityTimeout": 900
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "HostedSymphony-staging/DispatchQueue/Resource"
+   }
+  },
+  "RefreshQueue83549414": {
+   "Type": "AWS::SQS::Queue",
+   "Properties": {
+    "QueueName": "hosted-symphony-staging-refresh",
+    "VisibilityTimeout": 300
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "HostedSymphony-staging/RefreshQueue/Resource"
+   }
+  },
+  "CancelQueue89CB162E": {
+   "Type": "AWS::SQS::Queue",
+   "Properties": {
+    "QueueName": "hosted-symphony-staging-cancel",
+    "VisibilityTimeout": 300
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "HostedSymphony-staging/CancelQueue/Resource"
+   }
+  },
+  "WorkerEventQueue4022FB14": {
+   "Type": "AWS::SQS::Queue",
+   "Properties": {
+    "QueueName": "hosted-symphony-staging-worker-event",
+    "VisibilityTimeout": 300
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "HostedSymphony-staging/WorkerEventQueue/Resource"
+   }
+  },
+  "ServiceToken3500ADD0": {
+   "Type": "AWS::SecretsManager::Secret",
+   "Properties": {
+    "GenerateSecretString": {
+     "PasswordLength": 48
+    },
+    "Name": "hosted-symphony-staging/service-token"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "HostedSymphony-staging/ServiceToken/Resource"
+   }
+  },
+  "WorkerEventSecret10E0E1BD": {
+   "Type": "AWS::SecretsManager::Secret",
+   "Properties": {
+    "GenerateSecretString": {
+     "PasswordLength": 48
+    },
+    "Name": "hosted-symphony-staging/worker-event-secret"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "HostedSymphony-staging/WorkerEventSecret/Resource"
+   }
+  },
+  "GitHubAppPrivateKey042AC85F": {
+   "Type": "AWS::SecretsManager::Secret",
+   "Properties": {
+    "GenerateSecretString": {},
+    "Name": "hosted-symphony-staging/github-app-private-key"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "HostedSymphony-staging/GitHubAppPrivateKey/Resource"
+   }
+  },
+  "OpenAiApiKeyAB1C389B": {
+   "Type": "AWS::SecretsManager::Secret",
+   "Properties": {
+    "GenerateSecretString": {},
+    "Name": "hosted-symphony-staging/openai-api-key"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "HostedSymphony-staging/OpenAiApiKey/Resource"
+   }
+  },
+  "ControlPlaneRepository45F7C185": {
+   "Type": "AWS::ECR::Repository",
+   "Properties": {
+    "ImageScanningConfiguration": {
+     "ScanOnPush": true
+    },
+    "RepositoryName": "hosted-symphony-staging/control-plane"
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain",
+   "Metadata": {
+    "aws:cdk:path": "HostedSymphony-staging/ControlPlaneRepository/Resource"
+   }
+  },
+  "WorkerRepository770852D6": {
+   "Type": "AWS::ECR::Repository",
+   "Properties": {
+    "ImageScanningConfiguration": {
+     "ScanOnPush": true
+    },
+    "RepositoryName": "hosted-symphony-staging/worker"
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain",
+   "Metadata": {
+    "aws:cdk:path": "HostedSymphony-staging/WorkerRepository/Resource"
+   }
+  },
+  "ControlPlaneLogGroupA8D86BA9": {
+   "Type": "AWS::Logs::LogGroup",
+   "Properties": {
+    "LogGroupName": "/ecs/hosted-symphony-staging/control-plane",
+    "RetentionInDays": 30
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "HostedSymphony-staging/ControlPlaneLogGroup/Resource"
+   }
+  },
+  "WorkerLogGroup31FDBE4A": {
+   "Type": "AWS::Logs::LogGroup",
+   "Properties": {
+    "LogGroupName": "/ecs/hosted-symphony-staging/worker",
+    "RetentionInDays": 30
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "HostedSymphony-staging/WorkerLogGroup/Resource"
+   }
+  },
+  "ControlPlaneTaskTaskRole109D67A2": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "ecs-tasks.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "HostedSymphony-staging/ControlPlaneTask/TaskRole/Resource"
+   }
+  },
+  "ControlPlaneTaskTaskRoleDefaultPolicy08A75FC4": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "sqs:*",
+        "secretsmanager:GetSecretValue",
+        "secretsmanager:PutSecretValue",
+        "secretsmanager:CreateSecret"
+       ],
+       "Effect": "Allow",
+       "Resource": "*"
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "ControlPlaneTaskTaskRoleDefaultPolicy08A75FC4",
+    "Roles": [
+     {
+      "Ref": "ControlPlaneTaskTaskRole109D67A2"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "HostedSymphony-staging/ControlPlaneTask/TaskRole/DefaultPolicy/Resource"
+   }
+  },
+  "ControlPlaneTask5B7510DA": {
+   "Type": "AWS::ECS::TaskDefinition",
+   "Properties": {
+    "ContainerDefinitions": [
+     {
+      "Environment": [
+       {
+        "Name": "HOSTED_SYMPHONY_MODE",
+        "Value": "aws"
+       },
+       {
+        "Name": "HOSTED_SYMPHONY_ENVIRONMENT",
+        "Value": "staging"
+       },
+       {
+        "Name": "HOSTED_SYMPHONY_BASE_URL",
+        "Value": "https://hosted-symphony-staging.internal"
+       },
+       {
+        "Name": "DATABASE_URL",
+        "Value": {
+         "Fn::Join": [
+          "",
+          [
+           "postgresql://hostedsymphony:{{resolve:secretsmanager:",
+           {
+            "Ref": "DbCredentials798065DE"
+           },
+           ":SecretString:password::}}@",
+           {
+            "Fn::GetAtt": [
+             "DatabaseB269D8BB",
+             "Endpoint.Address"
+            ]
+           },
+           ":5432/hostedsymphony"
+          ]
+         ]
+        }
+       },
+       {
+        "Name": "AWS_REGION",
+        "Value": "us-east-1"
+       },
+       {
+        "Name": "SYMPHONY_QUEUE_URL_DISPATCH",
+        "Value": {
+         "Ref": "DispatchQueue898EB017"
+        }
+       },
+       {
+        "Name": "SYMPHONY_QUEUE_URL_REFRESH",
+        "Value": {
+         "Ref": "RefreshQueue83549414"
+        }
+       },
+       {
+        "Name": "SYMPHONY_QUEUE_URL_CANCEL",
+        "Value": {
+         "Ref": "CancelQueue89CB162E"
+        }
+       },
+       {
+        "Name": "SYMPHONY_QUEUE_URL_WORKER_EVENT",
+        "Value": {
+         "Ref": "WorkerEventQueue4022FB14"
+        }
+       },
+       {
+        "Name": "SYMPHONY_SECRET_PREFIX",
+        "Value": "/hosted-symphony-staging"
+       },
+       {
+        "Name": "SYMPHONY_ECS_CLUSTER_ARN",
+        "Value": {
+         "Fn::GetAtt": [
+          "ClusterEB0386A7",
+          "Arn"
+         ]
+        }
+       },
+       {
+        "Name": "SYMPHONY_ECS_WORKER_TASK_DEFINITION_ARN",
+        "Value": {
+         "Ref": "WorkerTaskCBB1FEE3"
+        }
+       },
+       {
+        "Name": "SYMPHONY_ECS_WORKER_CONTAINER_NAME",
+        "Value": "WorkerContainer"
+       },
+       {
+        "Name": "SYMPHONY_ECS_SUBNET_IDS",
+        "Value": {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Ref": "VpcPrivateSubnet1Subnet536B997A"
+           },
+           ",",
+           {
+            "Ref": "VpcPrivateSubnet2Subnet3788AAA1"
+           }
+          ]
+         ]
+        }
+       },
+       {
+        "Name": "SYMPHONY_ECS_SECURITY_GROUP_IDS",
+        "Value": {
+         "Fn::GetAtt": [
+          "AppSecurityGroupC396D536",
+          "GroupId"
+         ]
+        }
+       }
+      ],
+      "Essential": true,
+      "Image": {
+       "Fn::Join": [
+        "",
+        [
+         {
+          "Fn::Select": [
+           4,
+           {
+            "Fn::Split": [
+             ":",
+             {
+              "Fn::GetAtt": [
+               "ControlPlaneRepository45F7C185",
+               "Arn"
+              ]
+             }
+            ]
+           }
+          ]
+         },
+         ".dkr.ecr.",
+         {
+          "Fn::Select": [
+           3,
+           {
+            "Fn::Split": [
+             ":",
+             {
+              "Fn::GetAtt": [
+               "ControlPlaneRepository45F7C185",
+               "Arn"
+              ]
+             }
+            ]
+           }
+          ]
+         },
+         ".",
+         {
+          "Ref": "AWS::URLSuffix"
+         },
+         "/",
+         {
+          "Ref": "ControlPlaneRepository45F7C185"
+         },
+         ":latest"
+        ]
+       ]
+      },
+      "LogConfiguration": {
+       "LogDriver": "awslogs",
+       "Options": {
+        "awslogs-group": {
+         "Ref": "ControlPlaneLogGroupA8D86BA9"
+        },
+        "awslogs-stream-prefix": "control-plane",
+        "awslogs-region": "us-east-1"
+       }
+      },
+      "Name": "ControlPlaneContainer",
+      "PortMappings": [
+       {
+        "ContainerPort": 4310,
+        "Protocol": "tcp"
+       }
+      ],
+      "Secrets": [
+       {
+        "Name": "HOSTED_SYMPHONY_SERVICE_TOKEN",
+        "ValueFrom": {
+         "Ref": "ServiceToken3500ADD0"
+        }
+       },
+       {
+        "Name": "SYMPHONY_WORKER_EVENT_SECRET",
+        "ValueFrom": {
+         "Ref": "WorkerEventSecret10E0E1BD"
+        }
+       }
+      ]
+     }
+    ],
+    "Cpu": "512",
+    "ExecutionRoleArn": {
+     "Fn::GetAtt": [
+      "ControlPlaneTaskExecutionRoleF83BE272",
+      "Arn"
+     ]
+    },
+    "Family": "HostedSymphonystagingControlPlaneTaskBE8230B1",
+    "Memory": "1024",
+    "NetworkMode": "awsvpc",
+    "RequiresCompatibilities": [
+     "FARGATE"
+    ],
+    "TaskRoleArn": {
+     "Fn::GetAtt": [
+      "ControlPlaneTaskTaskRole109D67A2",
+      "Arn"
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "HostedSymphony-staging/ControlPlaneTask/Resource"
+   }
+  },
+  "ControlPlaneTaskExecutionRoleF83BE272": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "ecs-tasks.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "HostedSymphony-staging/ControlPlaneTask/ExecutionRole/Resource"
+   }
+  },
+  "ControlPlaneTaskExecutionRoleDefaultPolicy05012E02": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "ecr:BatchCheckLayerAvailability",
+        "ecr:GetDownloadUrlForLayer",
+        "ecr:BatchGetImage"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "ControlPlaneRepository45F7C185",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": "ecr:GetAuthorizationToken",
+       "Effect": "Allow",
+       "Resource": "*"
+      },
+      {
+       "Action": [
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "ControlPlaneLogGroupA8D86BA9",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": [
+        "secretsmanager:GetSecretValue",
+        "secretsmanager:DescribeSecret"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "ServiceToken3500ADD0"
+       }
+      },
+      {
+       "Action": [
+        "secretsmanager:GetSecretValue",
+        "secretsmanager:DescribeSecret"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "WorkerEventSecret10E0E1BD"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "ControlPlaneTaskExecutionRoleDefaultPolicy05012E02",
+    "Roles": [
+     {
+      "Ref": "ControlPlaneTaskExecutionRoleF83BE272"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "HostedSymphony-staging/ControlPlaneTask/ExecutionRole/DefaultPolicy/Resource"
+   }
+  },
+  "WorkerTaskTaskRoleC4141168": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "ecs-tasks.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "HostedSymphony-staging/WorkerTask/TaskRole/Resource"
+   }
+  },
+  "WorkerTaskTaskRoleDefaultPolicy242C79D9": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "secretsmanager:GetSecretValue",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+       ],
+       "Effect": "Allow",
+       "Resource": "*"
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "WorkerTaskTaskRoleDefaultPolicy242C79D9",
+    "Roles": [
+     {
+      "Ref": "WorkerTaskTaskRoleC4141168"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "HostedSymphony-staging/WorkerTask/TaskRole/DefaultPolicy/Resource"
+   }
+  },
+  "WorkerTaskCBB1FEE3": {
+   "Type": "AWS::ECS::TaskDefinition",
+   "Properties": {
+    "ContainerDefinitions": [
+     {
+      "Command": [
+       "node",
+       "dist/cli.js"
+      ],
+      "Environment": [
+       {
+        "Name": "GITHUB_APP_ID",
+        "Value": "set-me"
+       },
+       {
+        "Name": "SYMPHONY_CONTROL_PLANE_URL",
+        "Value": "https://hosted-symphony-staging.internal"
+       },
+       {
+        "Name": "SYMPHONY_WORKSPACE_ROOT",
+        "Value": "/mnt/symphony"
+       }
+      ],
+      "Essential": true,
+      "Image": {
+       "Fn::Join": [
+        "",
+        [
+         {
+          "Fn::Select": [
+           4,
+           {
+            "Fn::Split": [
+             ":",
+             {
+              "Fn::GetAtt": [
+               "WorkerRepository770852D6",
+               "Arn"
+              ]
+             }
+            ]
+           }
+          ]
+         },
+         ".dkr.ecr.",
+         {
+          "Fn::Select": [
+           3,
+           {
+            "Fn::Split": [
+             ":",
+             {
+              "Fn::GetAtt": [
+               "WorkerRepository770852D6",
+               "Arn"
+              ]
+             }
+            ]
+           }
+          ]
+         },
+         ".",
+         {
+          "Ref": "AWS::URLSuffix"
+         },
+         "/",
+         {
+          "Ref": "WorkerRepository770852D6"
+         },
+         ":latest"
+        ]
+       ]
+      },
+      "LogConfiguration": {
+       "LogDriver": "awslogs",
+       "Options": {
+        "awslogs-group": {
+         "Ref": "WorkerLogGroup31FDBE4A"
+        },
+        "awslogs-stream-prefix": "worker",
+        "awslogs-region": "us-east-1"
+       }
+      },
+      "MountPoints": [
+       {
+        "ContainerPath": "/mnt/symphony",
+        "ReadOnly": false,
+        "SourceVolume": "workspaces"
+       }
+      ],
+      "Name": "WorkerContainer",
+      "Secrets": [
+       {
+        "Name": "GITHUB_APP_PRIVATE_KEY",
+        "ValueFrom": {
+         "Ref": "GitHubAppPrivateKey042AC85F"
+        }
+       },
+       {
+        "Name": "OPENAI_API_KEY",
+        "ValueFrom": {
+         "Ref": "OpenAiApiKeyAB1C389B"
+        }
+       },
+       {
+        "Name": "SYMPHONY_WORKER_EVENT_SECRET",
+        "ValueFrom": {
+         "Ref": "WorkerEventSecret10E0E1BD"
+        }
+       }
+      ]
+     }
+    ],
+    "Cpu": "1024",
+    "ExecutionRoleArn": {
+     "Fn::GetAtt": [
+      "WorkerTaskExecutionRole9C03D68C",
+      "Arn"
+     ]
+    },
+    "Family": "HostedSymphonystagingWorkerTaskE83979AF",
+    "Memory": "2048",
+    "NetworkMode": "awsvpc",
+    "RequiresCompatibilities": [
+     "FARGATE"
+    ],
+    "TaskRoleArn": {
+     "Fn::GetAtt": [
+      "WorkerTaskTaskRoleC4141168",
+      "Arn"
+     ]
+    },
+    "Volumes": [
+     {
+      "EFSVolumeConfiguration": {
+       "FilesystemId": {
+        "Ref": "WorkspaceFileSystem5CB98ACC"
+       },
+       "TransitEncryption": "ENABLED"
+      },
+      "Name": "workspaces"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "HostedSymphony-staging/WorkerTask/Resource"
+   }
+  },
+  "WorkerTaskExecutionRole9C03D68C": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "ecs-tasks.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "HostedSymphony-staging/WorkerTask/ExecutionRole/Resource"
+   }
+  },
+  "WorkerTaskExecutionRoleDefaultPolicyAF6178D4": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "ecr:BatchCheckLayerAvailability",
+        "ecr:GetDownloadUrlForLayer",
+        "ecr:BatchGetImage"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "WorkerRepository770852D6",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": "ecr:GetAuthorizationToken",
+       "Effect": "Allow",
+       "Resource": "*"
+      },
+      {
+       "Action": [
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "WorkerLogGroup31FDBE4A",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": [
+        "secretsmanager:GetSecretValue",
+        "secretsmanager:DescribeSecret"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "GitHubAppPrivateKey042AC85F"
+       }
+      },
+      {
+       "Action": [
+        "secretsmanager:GetSecretValue",
+        "secretsmanager:DescribeSecret"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "OpenAiApiKeyAB1C389B"
+       }
+      },
+      {
+       "Action": [
+        "secretsmanager:GetSecretValue",
+        "secretsmanager:DescribeSecret"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "WorkerEventSecret10E0E1BD"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "WorkerTaskExecutionRoleDefaultPolicyAF6178D4",
+    "Roles": [
+     {
+      "Ref": "WorkerTaskExecutionRole9C03D68C"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "HostedSymphony-staging/WorkerTask/ExecutionRole/DefaultPolicy/Resource"
+   }
+  },
+  "ControlPlaneServiceAF0E121B": {
+   "Type": "AWS::ECS::Service",
+   "Properties": {
+    "Cluster": {
+     "Ref": "ClusterEB0386A7"
+    },
+    "DeploymentConfiguration": {
+     "Alarms": {
+      "AlarmNames": [],
+      "Enable": false,
+      "Rollback": false
+     },
+     "MaximumPercent": 200,
+     "MinimumHealthyPercent": 50
+    },
+    "DesiredCount": 1,
+    "EnableECSManagedTags": false,
+    "HealthCheckGracePeriodSeconds": 60,
+    "LaunchType": "FARGATE",
+    "LoadBalancers": [
+     {
+      "ContainerName": "ControlPlaneContainer",
+      "ContainerPort": 4310,
+      "TargetGroupArn": {
+       "Ref": "AlbHttpListenerControlPlaneTargetsGroup1E7BA025"
+      }
+     }
+    ],
+    "NetworkConfiguration": {
+     "AwsvpcConfiguration": {
+      "AssignPublicIp": "DISABLED",
+      "SecurityGroups": [
+       {
+        "Fn::GetAtt": [
+         "AppSecurityGroupC396D536",
+         "GroupId"
+        ]
+       }
+      ],
+      "Subnets": [
+       {
+        "Ref": "VpcPrivateSubnet1Subnet536B997A"
+       },
+       {
+        "Ref": "VpcPrivateSubnet2Subnet3788AAA1"
+       }
+      ]
+     }
+    },
+    "TaskDefinition": {
+     "Ref": "ControlPlaneTask5B7510DA"
+    }
+   },
+   "DependsOn": [
+    "AlbHttpListenerControlPlaneTargetsGroup1E7BA025",
+    "AlbHttpListener00C8B33E",
+    "ControlPlaneTaskTaskRoleDefaultPolicy08A75FC4",
+    "ControlPlaneTaskTaskRole109D67A2"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "HostedSymphony-staging/ControlPlaneService/Service"
+   }
+  },
+  "Alb16C2F182": {
+   "Type": "AWS::ElasticLoadBalancingV2::LoadBalancer",
+   "Properties": {
+    "LoadBalancerAttributes": [
+     {
+      "Key": "deletion_protection.enabled",
+      "Value": "false"
+     }
+    ],
+    "Scheme": "internet-facing",
+    "SecurityGroups": [
+     {
+      "Fn::GetAtt": [
+       "AppSecurityGroupC396D536",
+       "GroupId"
+      ]
+     }
+    ],
+    "Subnets": [
+     {
+      "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
+     },
+     {
+      "Ref": "VpcPublicSubnet2Subnet691E08A3"
+     }
+    ],
+    "Type": "application"
+   },
+   "DependsOn": [
+    "VpcPublicSubnet1DefaultRoute3DA9E72A",
+    "VpcPublicSubnet1RouteTableAssociation97140677",
+    "VpcPublicSubnet2DefaultRoute97F91067",
+    "VpcPublicSubnet2RouteTableAssociationDD5762D8"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "HostedSymphony-staging/Alb/Resource"
+   }
+  },
+  "AlbHttpListener00C8B33E": {
+   "Type": "AWS::ElasticLoadBalancingV2::Listener",
+   "Properties": {
+    "DefaultActions": [
+     {
+      "TargetGroupArn": {
+       "Ref": "AlbHttpListenerControlPlaneTargetsGroup1E7BA025"
+      },
+      "Type": "forward"
+     }
+    ],
+    "LoadBalancerArn": {
+     "Ref": "Alb16C2F182"
+    },
+    "Port": 80,
+    "Protocol": "HTTP"
+   },
+   "Metadata": {
+    "aws:cdk:path": "HostedSymphony-staging/Alb/HttpListener/Resource"
+   }
+  },
+  "AlbHttpListenerControlPlaneTargetsGroup1E7BA025": {
+   "Type": "AWS::ElasticLoadBalancingV2::TargetGroup",
+   "Properties": {
+    "HealthCheckPath": "/readyz",
+    "Port": 4310,
+    "Protocol": "HTTP",
+    "TargetGroupAttributes": [
+     {
+      "Key": "stickiness.enabled",
+      "Value": "false"
+     }
+    ],
+    "TargetType": "ip",
+    "VpcId": {
+     "Ref": "Vpc8378EB38"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "HostedSymphony-staging/Alb/HttpListener/ControlPlaneTargetsGroup/Resource"
+   }
+  },
+  "CDKMetadata": {
+   "Type": "AWS::CDK::Metadata",
+   "Properties": {
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/31S0W7bMAz8lr4rWmH0B9JkLQJ0WxYXfR1ohfHYKJInUgkCQf8+2EoctwP2xLvjiaBOqnT18KDv7+DEM7Pdzyw1OtUCZq/gxL8Smkqnt86oxc69rRdqHRtLpo6NQ+m1G9r4KPgKjcWbftPmzN4QCHk3mnvwdbXuy3eQZxA8wVmtAx1B8DZ45QSDw9FQNrmwuQiY3wd0omo0MZCcn4OP3bDDf4WVawMyZ4WGdVrYyIKhd13hE4QW+vV5v8QdObou/1nxToAchol2OVtjOJIpgRSYFe5YpyeyWJ9Z8ND3PrJvPjp5hdCiZMVoAgofwEGLQad64JfL9KiUYp+EMRo+d7IKW9ZpCQINMK4cCziDquQ9RrV8/Ee4WrPiP6zTz4hxuNkA+hiDThvsPJP4MDzTjWVlfcs6vfh2nHjFWREcdNr48nOGuvaWzDCjoKzQAgsZ62HbgAVnyLXHSqd511kyw8d68bB9HHrlIT/wqY9Y0F08Vzzpl8jGPSc0Z7VB9jGUN/0RpYuSlfNb1O/85VhVuqr0/d07E81CdEIH1JtS/wJarA4bagMAAA=="
+   },
+   "Metadata": {
+    "aws:cdk:path": "HostedSymphony-staging/CDKMetadata/Default"
+   }
+  }
+ },
+ "Outputs": {
+  "ControlPlaneRepositoryUri": {
+   "Value": {
+    "Fn::Join": [
+     "",
+     [
+      {
+       "Fn::Select": [
+        4,
+        {
+         "Fn::Split": [
+          ":",
+          {
+           "Fn::GetAtt": [
+            "ControlPlaneRepository45F7C185",
+            "Arn"
+           ]
+          }
+         ]
+        }
+       ]
+      },
+      ".dkr.ecr.",
+      {
+       "Fn::Select": [
+        3,
+        {
+         "Fn::Split": [
+          ":",
+          {
+           "Fn::GetAtt": [
+            "ControlPlaneRepository45F7C185",
+            "Arn"
+           ]
+          }
+         ]
+        }
+       ]
+      },
+      ".",
+      {
+       "Ref": "AWS::URLSuffix"
+      },
+      "/",
+      {
+       "Ref": "ControlPlaneRepository45F7C185"
+      }
+     ]
+    ]
+   }
+  },
+  "WorkerRepositoryUri": {
+   "Value": {
+    "Fn::Join": [
+     "",
+     [
+      {
+       "Fn::Select": [
+        4,
+        {
+         "Fn::Split": [
+          ":",
+          {
+           "Fn::GetAtt": [
+            "WorkerRepository770852D6",
+            "Arn"
+           ]
+          }
+         ]
+        }
+       ]
+      },
+      ".dkr.ecr.",
+      {
+       "Fn::Select": [
+        3,
+        {
+         "Fn::Split": [
+          ":",
+          {
+           "Fn::GetAtt": [
+            "WorkerRepository770852D6",
+            "Arn"
+           ]
+          }
+         ]
+        }
+       ]
+      },
+      ".",
+      {
+       "Ref": "AWS::URLSuffix"
+      },
+      "/",
+      {
+       "Ref": "WorkerRepository770852D6"
+      }
+     ]
+    ]
+   }
+  },
+  "ControlPlaneUrl": {
+   "Value": "https://hosted-symphony-staging.internal"
+  },
+  "ServiceTokenSecretArn": {
+   "Value": {
+    "Ref": "ServiceToken3500ADD0"
+   }
+  }
+ },
+ "Parameters": {
+  "BootstrapVersion": {
+   "Type": "AWS::SSM::Parameter::Value<String>",
+   "Default": "/cdk-bootstrap/hnb659fds/version",
+   "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
+  }
+ },
+ "Rules": {
+  "CheckBootstrapVersion": {
+   "Assertions": [
+    {
+     "Assert": {
+      "Fn::Not": [
+       {
+        "Fn::Contains": [
+         [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+         ],
+         {
+          "Ref": "BootstrapVersion"
+         }
+        ]
+       }
+      ]
+     },
+     "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+    }
+   ]
+  }
+ }
+}

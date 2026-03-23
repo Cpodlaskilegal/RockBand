@@ -1,0 +1,36 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "environment": {
+      "value": "staging"
+    },
+    "location": {
+      "value": "eastus"
+    },
+    "containerRegistryName": {
+      "value": "hostedsymphonystagingacr"
+    },
+    "storageAccountName": {
+      "value": "hostedsymphonystorage"
+    },
+    "keyVaultName": {
+      "value": "hosted-symphony-staging-kv"
+    },
+    "postgresServerName": {
+      "value": "hosted-symphony-staging-pg"
+    },
+    "postgresAdminLogin": {
+      "value": "hostedsymphony"
+    },
+    "controlPlaneBaseUrl": {
+      "value": "https://hosted-symphony-staging.example.internal"
+    },
+    "controlPlaneImage": {
+      "value": "hostedsymphonystagingacr.azurecr.io/hosted-symphony-control-plane:latest"
+    },
+    "workerImage": {
+      "value": "hostedsymphonystagingacr.azurecr.io/hosted-symphony-worker:latest"
+    }
+  }
+}

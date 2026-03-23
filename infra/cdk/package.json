@@ -1,0 +1,17 @@
+{
+  "name": "@rockband/infra-cdk",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "diff": "npx cdk diff",
+    "synth": "npx cdk synth",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "aws-cdk-lib": "^2.213.0",
+    "constructs": "^10.4.2",
+    "source-map-support": "^0.5.21"
+  }
+}

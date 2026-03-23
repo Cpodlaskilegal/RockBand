@@ -1,0 +1,19 @@
+{
+  "name": "@rockband/shared",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "nunjucks": "^3.2.4",
+    "yaml": "^2.8.1"
+  }
+}
