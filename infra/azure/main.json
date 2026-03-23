@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.41.2.15936",
-      "templateHash": "14829577015505150725"
+      "templateHash": "643770182281414558"
     }
   },
   "parameters": {
@@ -19,6 +19,10 @@
     "location": {
       "type": "string",
       "defaultValue": "[resourceGroup().location]"
+    },
+    "postgresLocation": {
+      "type": "string",
+      "defaultValue": "[parameters('location')]"
     },
     "namePrefix": {
       "type": "string",
@@ -139,6 +143,8 @@
     }
   },
   "variables": {
+    "controlPlaneAppName": "[format('{0}-cp', parameters('namePrefix'))]",
+    "workerJobName": "[format('{0}-worker', parameters('namePrefix'))]",
     "databaseUrl": "[format('postgresql://{0}:{1}@{2}.postgres.database.azure.com:5432/{3}?sslmode=require', parameters('postgresAdminLogin'), parameters('postgresAdminPassword'), parameters('postgresServerName'), parameters('postgresDatabaseName'))]",
     "acrLoginServer": "[format('{0}.azurecr.io', parameters('containerRegistryName'))]",
     "queueNames": {
@@ -253,7 +259,7 @@
       "type": "Microsoft.DBforPostgreSQL/flexibleServers",
       "apiVersion": "2022-12-01",
       "name": "[parameters('postgresServerName')]",
-      "location": "[parameters('location')]",
+      "location": "[parameters('postgresLocation')]",
       "sku": {
         "name": "[parameters('postgresSkuName')]",
         "tier": "Burstable"
@@ -346,7 +352,7 @@
     {
       "type": "Microsoft.App/containerApps",
       "apiVersion": "2024-03-01",
-      "name": "[format('{0}-control-plane', parameters('namePrefix'))]",
+      "name": "[variables('controlPlaneAppName')]",
       "location": "[parameters('location')]",
       "identity": {
         "type": "SystemAssigned"
@@ -454,7 +460,7 @@
                 },
                 {
                   "name": "AZURE_CONTAINERAPPS_JOB_NAME",
-                  "value": "[format('{0}-worker', parameters('namePrefix'))]"
+                  "value": "[variables('workerJobName')]"
                 },
                 {
                   "name": "AZURE_CONTAINERAPPS_JOB_CONTAINER_NAME",
@@ -523,7 +529,7 @@
     {
       "type": "Microsoft.App/jobs",
       "apiVersion": "2024-03-01",
-      "name": "[format('{0}-worker', parameters('namePrefix'))]",
+      "name": "[variables('workerJobName')]",
       "location": "[parameters('location')]",
       "identity": {
         "type": "SystemAssigned"
@@ -602,11 +608,11 @@
                 },
                 {
                   "name": "SYMPHONY_LOG_NAMESPACE",
-                  "value": "[format('{0}/{1}-worker', resourceGroup().name, parameters('namePrefix'))]"
+                  "value": "[format('{0}/{1}', resourceGroup().name, variables('workerJobName'))]"
                 },
                 {
                   "name": "SYMPHONY_AZURE_JOB_NAME",
-                  "value": "[format('{0}-worker', parameters('namePrefix'))]"
+                  "value": "[variables('workerJobName')]"
                 },
                 {
                   "name": "SYMPHONY_AZURE_RESOURCE_GROUP",
@@ -645,30 +651,30 @@
       "type": "Microsoft.Authorization/roleAssignments",
       "apiVersion": "2022-04-01",
       "scope": "[resourceId('Microsoft.ContainerRegistry/registries', parameters('containerRegistryName'))]",
-      "name": "[guid(resourceId('Microsoft.ContainerRegistry/registries', parameters('containerRegistryName')), resourceId('Microsoft.App/containerApps', format('{0}-control-plane', parameters('namePrefix'))), 'AcrPull')]",
+      "name": "[guid(resourceId('Microsoft.ContainerRegistry/registries', parameters('containerRegistryName')), resourceId('Microsoft.App/containerApps', variables('controlPlaneAppName')), 'AcrPull')]",
       "properties": {
         "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '7f951dda-4ed3-4680-a7ca-43fe172d538d')]",
-        "principalId": "[reference(resourceId('Microsoft.App/containerApps', format('{0}-control-plane', parameters('namePrefix'))), '2024-03-01', 'full').identity.principalId]",
+        "principalId": "[reference(resourceId('Microsoft.App/containerApps', variables('controlPlaneAppName')), '2024-03-01', 'full').identity.principalId]",
         "principalType": "ServicePrincipal"
       },
       "dependsOn": [
         "[resourceId('Microsoft.ContainerRegistry/registries', parameters('containerRegistryName'))]",
-        "[resourceId('Microsoft.App/containerApps', format('{0}-control-plane', parameters('namePrefix')))]"
+        "[resourceId('Microsoft.App/containerApps', variables('controlPlaneAppName'))]"
       ]
     },
     {
       "type": "Microsoft.Authorization/roleAssignments",
       "apiVersion": "2022-04-01",
       "scope": "[resourceId('Microsoft.ContainerRegistry/registries', parameters('containerRegistryName'))]",
-      "name": "[guid(resourceId('Microsoft.ContainerRegistry/registries', parameters('containerRegistryName')), resourceId('Microsoft.App/jobs', format('{0}-worker', parameters('namePrefix'))), 'AcrPull')]",
+      "name": "[guid(resourceId('Microsoft.ContainerRegistry/registries', parameters('containerRegistryName')), resourceId('Microsoft.App/jobs', variables('workerJobName')), 'AcrPull')]",
       "properties": {
         "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '7f951dda-4ed3-4680-a7ca-43fe172d538d')]",
-        "principalId": "[reference(resourceId('Microsoft.App/jobs', format('{0}-worker', parameters('namePrefix'))), '2024-03-01', 'full').identity.principalId]",
+        "principalId": "[reference(resourceId('Microsoft.App/jobs', variables('workerJobName')), '2024-03-01', 'full').identity.principalId]",
         "principalType": "ServicePrincipal"
       },
       "dependsOn": [
         "[resourceId('Microsoft.ContainerRegistry/registries', parameters('containerRegistryName'))]",
-        "[resourceId('Microsoft.App/jobs', format('{0}-worker', parameters('namePrefix')))]"
+        "[resourceId('Microsoft.App/jobs', variables('workerJobName'))]"
       ]
     },
     {
@@ -679,7 +685,7 @@
         "accessPolicies": [
           {
             "tenantId": "[subscription().tenantId]",
-            "objectId": "[reference(resourceId('Microsoft.App/containerApps', format('{0}-control-plane', parameters('namePrefix'))), '2024-03-01', 'full').identity.principalId]",
+            "objectId": "[reference(resourceId('Microsoft.App/containerApps', variables('controlPlaneAppName')), '2024-03-01', 'full').identity.principalId]",
             "permissions": {
               "secrets": [
                 "Get",
@@ -692,7 +698,7 @@
         ]
       },
       "dependsOn": [
-        "[resourceId('Microsoft.App/containerApps', format('{0}-control-plane', parameters('namePrefix')))]",
+        "[resourceId('Microsoft.App/containerApps', variables('controlPlaneAppName'))]",
         "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
       ]
     },
@@ -766,11 +772,11 @@
   "outputs": {
     "controlPlaneContainerAppName": {
       "type": "string",
-      "value": "[format('{0}-control-plane', parameters('namePrefix'))]"
+      "value": "[variables('controlPlaneAppName')]"
     },
     "controlPlaneIngressFqdn": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.App/containerApps', format('{0}-control-plane', parameters('namePrefix'))), '2024-03-01').configuration.ingress.fqdn]"
+      "value": "[reference(resourceId('Microsoft.App/containerApps', variables('controlPlaneAppName')), '2024-03-01').configuration.ingress.fqdn]"
     },
     "controlPlanePublicUrl": {
       "type": "string",
@@ -778,7 +784,7 @@
     },
     "workerJobName": {
       "type": "string",
-      "value": "[format('{0}-worker', parameters('namePrefix'))]"
+      "value": "[variables('workerJobName')]"
     },
     "keyVaultUri": {
       "type": "string",

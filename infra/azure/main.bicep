@@ -7,6 +7,7 @@ targetScope = 'resourceGroup'
 param environment string
 
 param location string = resourceGroup().location
+param postgresLocation string = location
 param namePrefix string = 'hosted-symphony-${environment}'
 
 @description('Existing or new Azure Container Registry name. Must be globally unique.')
@@ -63,6 +64,9 @@ param postgresDatabaseName string = 'hostedsymphony'
 param postgresSkuName string = 'Standard_B1ms'
 param postgresStorageSizeGb int = 32
 param postgresVersion string = '16'
+
+var controlPlaneAppName = '${namePrefix}-cp'
+var workerJobName = '${namePrefix}-worker'
 
 resource logAnalytics 'Microsoft.OperationalInsights/workspaces@2023-09-01' = {
   name: '${namePrefix}-logs'
@@ -142,7 +146,7 @@ resource workerEventQueue 'Microsoft.Storage/storageAccounts/queueServices/queue
 
 resource postgres 'Microsoft.DBforPostgreSQL/flexibleServers@2022-12-01' = {
   name: postgresServerName
-  location: location
+  location: postgresLocation
   sku: {
     name: postgresSkuName
     tier: 'Burstable'
@@ -228,7 +232,7 @@ var queueNames = {
 }
 
 resource controlPlane 'Microsoft.App/containerApps@2024-03-01' = {
-  name: '${namePrefix}-control-plane'
+  name: controlPlaneAppName
   location: location
   identity: {
     type: 'SystemAssigned'
@@ -336,7 +340,7 @@ resource controlPlane 'Microsoft.App/containerApps@2024-03-01' = {
             }
             {
               name: 'AZURE_CONTAINERAPPS_JOB_NAME'
-              value: '${namePrefix}-worker'
+              value: workerJobName
             }
             {
               name: 'AZURE_CONTAINERAPPS_JOB_CONTAINER_NAME'
@@ -394,7 +398,7 @@ resource controlPlane 'Microsoft.App/containerApps@2024-03-01' = {
 }
 
 resource workerJob 'Microsoft.App/jobs@2024-03-01' = {
-  name: '${namePrefix}-worker'
+  name: workerJobName
   location: location
   identity: {
     type: 'SystemAssigned'
@@ -473,11 +477,11 @@ resource workerJob 'Microsoft.App/jobs@2024-03-01' = {
             }
             {
               name: 'SYMPHONY_LOG_NAMESPACE'
-              value: '${resourceGroup().name}/${namePrefix}-worker'
+              value: '${resourceGroup().name}/${workerJobName}'
             }
             {
               name: 'SYMPHONY_AZURE_JOB_NAME'
-              value: '${namePrefix}-worker'
+              value: workerJobName
             }
             {
               name: 'SYMPHONY_AZURE_RESOURCE_GROUP'
