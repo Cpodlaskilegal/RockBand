@@ -1,4 +1,4 @@
-create table hosted_repos (
+create table if not exists hosted_repos (
   id text primary key,
   owner text not null,
   repo text not null,
@@ -19,13 +19,13 @@ create table hosted_repos (
   updated_at timestamptz not null default now()
 );
 
-create table repo_secrets (
+create table if not exists repo_secrets (
   repo_id text primary key references hosted_repos(id) on delete cascade,
   linear_api_key_secret_arn text not null,
   created_at timestamptz not null default now()
 );
 
-create table run_attempts (
+create table if not exists run_attempts (
   id uuid primary key,
   repo_id text not null references hosted_repos(id) on delete cascade,
   issue_id text not null,
@@ -45,7 +45,7 @@ create table run_attempts (
   last_error text
 );
 
-create table session_events (
+create table if not exists session_events (
   id bigserial primary key,
   repo_id text not null references hosted_repos(id) on delete cascade,
   issue_identifier text not null,
@@ -55,7 +55,7 @@ create table session_events (
   created_at timestamptz not null default now()
 );
 
-create table issue_runtime_projection (
+create table if not exists issue_runtime_projection (
   repo_id text not null references hosted_repos(id) on delete cascade,
   issue_identifier text not null,
   status text not null,
@@ -64,4 +64,4 @@ create table issue_runtime_projection (
   primary key (repo_id, issue_identifier)
 );
 
-create index session_events_repo_issue_idx on session_events (repo_id, issue_identifier, created_at desc);
+create index if not exists session_events_repo_issue_idx on session_events (repo_id, issue_identifier, created_at desc);

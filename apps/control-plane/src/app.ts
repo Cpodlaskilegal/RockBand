@@ -226,6 +226,21 @@ export function createApp(config = loadConfig()) {
     return { accepted: true };
   });
 
+  app.setErrorHandler((error, _request, reply) => {
+    const missingRepoId = extractMissingRepoId(error);
+    if (missingRepoId) {
+      reply.code(404).send({
+        error: {
+          code: "repo_not_found",
+          message: `Unknown repo ${missingRepoId}`,
+        },
+      });
+      return;
+    }
+
+    reply.send(error);
+  });
+
   return { app, service, config };
 }
 
@@ -270,6 +285,14 @@ function buildAzureWorkerEnv(config: ReturnType<typeof loadConfig>): Record<stri
     OPENAI_API_KEY: process.env.OPENAI_API_KEY,
     CODEX_COMMAND: process.env.CODEX_COMMAND,
   };
+}
+
+function extractMissingRepoId(error: unknown): string | undefined {
+  if (!(error instanceof Error)) {
+    return undefined;
+  }
+  const prefix = "repo_not_found:";
+  return error.message.startsWith(prefix) ? error.message.slice(prefix.length) : undefined;
 }
 
 async function runPostgresMigrations(pool: Pool, app: ReturnType<typeof Fastify>): Promise<void> {
